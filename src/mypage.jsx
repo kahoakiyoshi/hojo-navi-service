@@ -3,14 +3,22 @@ import { MOCK_COMPANY, MOCK_ALERTS, MOCK_EXPERTS } from './data';
 import { StatusBadge } from './ui';
 import { fetchSubsidies } from './services/db';
 
-export const MyPage = ({ onOpenDetail, onNav, isMobile, onLogout, watchlist = [] }) => {
+export const MyPage = ({ onOpenDetail, onNav, isMobile, onLogout, watchlist = [], isPremium, membershipStatus, onUpgrade }) => {
   const c = MOCK_COMPANY;
   const unread = MOCK_ALERTS.filter(a => !a.read).length;
   const [watched, setWatched] = useState([]);
+  const [loadingUpgrade, setLoadingUpgrade] = useState(false);
 
   useEffect(() => {
     fetchSubsidies().then(list => setWatched(list.filter(s => watchlist.includes(s.id)).slice(0, 4)));
   }, [watchlist]);
+
+  const handleUpgradeClick = async () => {
+    setLoadingUpgrade(true);
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    await onUpgrade();
+    setLoadingUpgrade(false);
+  };
 
   return (
     <div style={{ background: "var(--bg)", paddingBottom: 60 }}>
@@ -19,16 +27,34 @@ export const MyPage = ({ onOpenDetail, onNav, isMobile, onLogout, watchlist = []
         padding: isMobile ? "24px 22px 22px" : "36px 56px 28px",
         borderBottom: "1px solid var(--line-ink)",
       }}>
-        <div className="eyebrow" style={{ marginBottom: 14 }}>
-          {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" })} · おはようございます
+        <div className="between" style={{ alignItems: "flex-start" }}>
+          <div>
+            <div className="eyebrow" style={{ marginBottom: 14 }}>
+              {new Date().toLocaleDateString("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "long" })} · おはようございます
+            </div>
+            <h1 className="display" style={{
+              fontSize: isMobile ? 26 : 38,
+              margin: "0 0 8px",
+              fontWeight: 600,
+              letterSpacing: "-0.015em",
+              lineHeight: 1.25
+            }}>
+              {c.name || "未設定"} <em style={{ fontStyle: "italic", color: "var(--ink-3)" }}>様</em>
+            </h1>
+          </div>
+          
+          <div style={{ marginTop: 8 }}>
+            <span className="badge" style={{
+              color: isPremium ? "var(--emerald)" : "var(--amber)",
+              borderColor: isPremium ? "var(--emerald)" : "var(--amber)",
+              padding: "4px 10px",
+              fontSize: "11px",
+              fontWeight: "bold"
+            }}>
+              {isPremium ? "プレミアム会員" : "無料プラン"}
+            </span>
+          </div>
         </div>
-        <h1 className="display" style={{
-          fontSize: isMobile ? 26 : 38,
-          margin: "0 0 8px",
-          fontWeight: 600,
-          letterSpacing: "-0.015em",
-          lineHeight: 1.25
-        }}>{c.name || "未設定"} <em style={{ fontStyle: "italic", color: "var(--ink-3)" }}>様</em></h1>
         <div className="muted sm">{c.industry || "未設定"} · {c.employeeCount != null ? `${c.employeeCount} 名` : "未設定"} · {c.prefecture || "未設定"}</div>
       </div>
 
@@ -165,6 +191,45 @@ export const MyPage = ({ onOpenDetail, onNav, isMobile, onLogout, watchlist = []
           </div>
 
           <aside className="col" style={{ gap: 36 }}>
+            {/* Membership card */}
+            <div style={{
+              background: isPremium ? "var(--bg-elev)" : "var(--amber-soft)",
+              border: isPremium ? "1px solid var(--line)" : "1px solid var(--amber)",
+              padding: "20px 18px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12
+            }}>
+              <div className="between">
+                <span className="eyebrow" style={{ color: isPremium ? "var(--emerald)" : "var(--amber-ink)", fontWeight: "bold" }}>
+                  会員プラン
+                </span>
+                <span className="badge" style={{
+                  color: isPremium ? "var(--emerald)" : "var(--amber)",
+                  borderColor: isPremium ? "var(--emerald)" : "var(--amber)"
+                }}>
+                  {isPremium ? "プレミアム" : "無料会員"}
+                </span>
+              </div>
+              <div style={{ fontSize: 12.5, color: "var(--ink-2)", lineHeight: 1.6 }}>
+                {isPremium ? (
+                  "プレミアム会員の全ての機能（AIアシスタント、専門家相談等）をご利用いただけます。"
+                ) : (
+                  "AIアシスタント・専門家相談などの機能が制限されています。アップグレードしてすべての機能をご利用ください。"
+                )}
+              </div>
+              {!isPremium && (
+                <button
+                  className="btn btn-amber btn-block"
+                  style={{ fontWeight: "bold", fontSize: 13 }}
+                  onClick={handleUpgradeClick}
+                  disabled={loadingUpgrade}
+                >
+                  {loadingUpgrade ? "処理中..." : "Stripe で購読する →"}
+                </button>
+              )}
+            </div>
+
             {/* Company card */}
             <div>
               <div className="section-head">

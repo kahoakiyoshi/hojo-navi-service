@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Paywall } from './components/Paywall';
 
-export const AIChatPage = ({ isMobile }) => {
+export const AIChatPage = ({ isMobile, isPremium, onUpgrade }) => {
   const [messages, setMessages] = useState([
     { r: "ai", t: "こんにちは。補助金AIアシスタントです。貴社情報を読み込み済みです。どんなことをお聞きしたいですか？" },
   ]);
@@ -11,6 +12,10 @@ export const AIChatPage = ({ isMobile }) => {
   useEffect(() => {
     endRef.current?.parentElement?.scrollTo?.({ top: 99999, behavior: "smooth" });
   }, [messages]);
+
+  if (!isPremium) {
+    return <Paywall onUpgrade={onUpgrade} isMobile={isMobile} />;
+  }
 
   const send = async (q) => {
     if (!q.trim()) return;

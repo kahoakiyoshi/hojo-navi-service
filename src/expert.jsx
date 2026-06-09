@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { MOCK_EXPERTS } from './data';
 import { fetchSubsidies } from './services/db';
+import { Paywall } from './components/Paywall';
 
-export const Expert = ({ isMobile }) => {
-  const [picked, setPicked] = useState(MOCK_EXPERTS[0].id);
+export const Expert = ({ isMobile, isPremium, onUpgrade }) => {
+  const [picked, setPicked] = useState(MOCK_EXPERTS[0]?.id || "");
   const [phase, setPhase] = useState("pick"); // pick | chat
-  const exp = MOCK_EXPERTS.find(e => e.id === picked);
+  const exp = MOCK_EXPERTS.find(e => e.id === picked) || {};
   const [subsidiesList, setSubsidiesList] = useState([]);
 
   useEffect(() => {
     fetchSubsidies().then(setSubsidiesList);
   }, []);
+
+  if (!isPremium) {
+    return <Paywall onUpgrade={onUpgrade} isMobile={isMobile} />;
+  }
 
   return (
     <div style={{ padding: isMobile ? "24px 22px 80px" : "36px 56px 60px" }}>
@@ -30,7 +35,11 @@ export const Expert = ({ isMobile }) => {
         </div>
       </div>
 
-      {phase === "pick" ? (
+      {MOCK_EXPERTS.length === 0 ? (
+        <div style={{ textAlign: "center", padding: "40px 0", color: "var(--ink-3)" }}>
+          現在、相談可能な専門家が登録されていません。
+        </div>
+      ) : phase === "pick" ? (
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 320px", gap: 36 }}>
           <div style={{ borderTop: "1px solid var(--line-ink)" }}>
             {MOCK_EXPERTS.map((e, i) => (
@@ -106,7 +115,7 @@ export const Expert = ({ isMobile }) => {
                   </span>
                 </div>
               </div>
-              <button className="btn btn-primary btn-lg btn-block">この内容で予約する →</button>
+              <button className="btn btn-primary btn-lg btn-block" onClick={() => setPhase("chat")}>この内容で予約する →</button>
             </div>
           </aside>
         </div>
@@ -117,24 +126,34 @@ export const Expert = ({ isMobile }) => {
   );
 };
 
-export const ExpertChat = ({ exp }) => (
-  <div style={{ minHeight: 520, display: "grid", gridTemplateRows: "auto 1fr auto", border: "1px solid var(--line)" }}>
-    <div className="between" style={{ padding: "16px 22px", borderBottom: "1px solid var(--line)" }}>
-      <div>
-        <div className="serif" style={{ fontSize: 17, fontWeight: 600 }}>{exp.name}</div>
-        <div className="muted-2 tiny" style={{ marginTop: 2 }}>{exp.role} · 通常 2 時間以内に返信</div>
-      </div>
-      <span className="badge badge-open">進行中</span>
-    </div>
-    <div style={{ padding: 28, overflowY: "auto", display: "flex", flexDirection: "column", gap: 22 }}>
-      <ChatBubble side="them" name={exp.name} text="お問い合わせありがとうございます。IT 導入補助金 2026 の件、貴社のご状況を確認させていただきました。" time="14:02" />
-      <ChatBubble side="them" name={exp.name} text={`売上規模・従業員数の要件は問題なく、特に「クラウド型業務システム導入」は補助対象に明示されているのでマッチします。3 点気になる箇所がありますので、お時間ある時にご確認ください:
+export const ExpertChat = ({ exp }) => {
+  const isWithB = exp.id === "e4";
+  const welcomeText1 = isWithB 
+    ? "お問い合わせありがとうございます。with-B行政書士法人 補助金ナビ 担当者です。"
+    : "お問い合わせありがとうございます。IT 導入補助金 2026 の件、貴社のご状況を確認させていただきました。";
+
+  const welcomeText2 = isWithB
+    ? "当法人は全国の事業者様へ、ものづくり補助金やIT導入補助金などの申請サポートを完全成功報酬ベースで伴走支援しております。まずはこちらの窓口より、お気軽にお問い合わせや申請要件のご相談を行っていただけます。ご希望の補助金や検討フェーズについて教えてください。"
+    : `売上規模・従業員数の要件は問題なく、特に「クラウド型業務システム導入」は補助対象に明示されているのでマッチします。3 点気になる箇所がありますので、お時間ある時にご確認ください:
 
 01 — GBizID プライムを未取得の場合、申請 2 週間前までに取得が必要です
-02 — 賃金引上計画が必須なので、就業規則의 整備状況をご共有いただけますか
-03 — IT ベンダーの登録番号が必要です — 候補ベンダーはお決まりですか？`} time="14:05" />
-      <ChatBubble side="me" text="ありがとうございます！GBizID は取得済です。ベンダーは 2 社で迷っています、比較資料をお送りしてもよろしいでしょうか？" time="14:18" />
-      <ChatBubble side="them" name={exp.name} text="はい、ぜひお送りください。私の方で「補助対象事業者」かどうかと、過去の採択補助率も含めて確認します。" time="14:22" />
+02 — 賃金引上計画が必須なので、就業規則の整備状況をご共有いただけますか
+03 — IT ベンダーの登録番号が必要です — 候補ベンダーはお決まりですか？`;
+
+  return (
+    <div style={{ minHeight: 520, display: "grid", gridTemplateRows: "auto 1fr auto", border: "1px solid var(--line)" }}>
+      <div className="between" style={{ padding: "16px 22px", borderBottom: "1px solid var(--line)" }}>
+        <div>
+          <div className="serif" style={{ fontSize: 17, fontWeight: 600 }}>{exp.name}</div>
+          <div className="muted-2 tiny" style={{ marginTop: 2 }}>{exp.role} · 通常 2 時間以内に返信</div>
+        </div>
+        <span className="badge badge-open">進行中</span>
+      </div>
+      <div style={{ padding: 28, overflowY: "auto", display: "flex", flexDirection: "column", gap: 22 }}>
+        <ChatBubble side="them" name={exp.name} text={welcomeText1} time="14:02" />
+        <ChatBubble side="them" name={exp.name} text={welcomeText2} time="14:05" />
+        <ChatBubble side="me" text="ありがとうございます！GBizID は取得済です。ベンダーは 2 社で迷っています、比較資料をお送りしてもよろしいでしょうか？" time="14:18" />
+        <ChatBubble side="them" name={exp.name} text="はい、ぜひお送りください。私の方で「補助対象事業者」かどうかと、過去の採択補助率も含めて確認します。" time="14:22" />
       <div className="row" style={{ alignSelf: "center", gap: 8 }}>
         <div className="thinking-dots"><span /><span /><span /></div>
         <span className="muted tiny">{exp.name} さんが入力中…</span>
@@ -148,7 +167,8 @@ export const ExpertChat = ({ exp }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export const ChatBubble = ({ side, name, text, time }) => (
   <div className="fade-in" style={{

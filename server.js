@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import analyzeHandler from './api/analyze.js';
 import chatHandler from './api/chat.js';
 import searchSubsidiesHandler from './api/search-subsidies.js';
+import subsidyDetailHandler from './api/subsidy-detail.js';
 
 // Load environment variables from .env
 dotenv.config();
@@ -16,6 +17,8 @@ app.use(express.json());
 app.post('/api/analyze', analyzeHandler);
 app.post('/api/chat', chatHandler);
 app.post('/api/search-subsidies', searchSubsidiesHandler);
+app.get('/api/subsidy-detail', subsidyDetailHandler);
+app.post('/api/subsidy-detail', subsidyDetailHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
@@ -24,6 +27,7 @@ app.listen(PORT, () => {
   console.log(`- POST http://localhost:${PORT}/api/analyze`);
   console.log(`- POST http://localhost:${PORT}/api/chat`);
   console.log(`- POST http://localhost:${PORT}/api/search-subsidies`);
+  console.log(`- GET/POST http://localhost:${PORT}/api/subsidy-detail`);
   console.log(`==================================================\n`);
 });
 

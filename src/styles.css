@@ -677,3 +677,103 @@ a { color: inherit; text-decoration: none; }
   font-weight: 500;
   min-width: 28px;
 }
+
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  /* Hide navigation headers, bottom nav, tweaks panels, and action buttons during print */
+  header, 
+  .cv-topbar, 
+  .botnav, 
+  .cv-toggle, 
+  .btn, 
+  .tweaks-panel, 
+  .tweaks-panel-trigger,
+  select, 
+  input, 
+  button, 
+  aside, 
+  .sidebar,
+  .btn-link:first-of-type {
+    display: none !important;
+  }
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    min-height: auto !important;
+  }
+  .app {
+    display: block !important;
+  }
+  /* Expand the main content width */
+  .frame-inner {
+    height: auto !important;
+    overflow: visible !important;
+  }
+}
+
+/* ============ JGrants Detail Parsing Styles ============ */
+.jgrants-detail-html .section-wrapper {
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px dotted var(--line);
+}
+.jgrants-detail-html .section-wrapper:last-child {
+  border-bottom: none;
+}
+.jgrants-detail-html .section-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: var(--navy);
+  border-left: 4px solid #0056b3;
+  padding-left: 10px;
+  margin-top: 0;
+  margin-bottom: 16px;
+  line-height: 1.2;
+}
+.jgrants-detail-html .section-content {
+  font-size: 14px;
+  color: var(--ink-2);
+  line-height: 1.8;
+  padding-left: 14px;
+}
+.jgrants-detail-html .section-content p, .jgrants-detail-html .section-content div {
+  margin: 8px 0;
+}
+.jgrants-detail-html .alert-box {
+  background-color: #fff1f2;
+  border-radius: 6px;
+  padding: 20px;
+  margin-top: 30px;
+  margin-bottom: 20px;
+}
+.theme-dark .jgrants-detail-html .alert-box {
+  background-color: #2e181c;
+}
+.jgrants-detail-html .alert-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #e11d48;
+  margin-bottom: 12px;
+}
+.theme-dark .jgrants-detail-html .alert-title {
+  color: #fda4af;
+}
+.jgrants-detail-html .alert-content p, 
+.jgrants-detail-html .alert-content div, 
+.jgrants-detail-html .alert-content span, 
+.jgrants-detail-html .alert-content li {
+  color: #dc2626 !important;
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 8px 0;
+}
+.theme-dark .jgrants-detail-html .alert-content p, 
+.theme-dark .jgrants-detail-html .alert-content div, 
+.theme-dark .jgrants-detail-html .alert-content span, 
+.theme-dark .jgrants-detail-html .alert-content li {
+  color: #fda4af !important;
+}
+

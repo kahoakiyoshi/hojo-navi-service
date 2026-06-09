@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { MOCK_EXPERTS } from './data';
-import { auth, db } from './firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { useAuth } from './context/AuthContext';
 
 export const Auth = ({ mode, onSwitch, onDone, isMobile, onBack }) => {
+  const { login, register } = useAuth();
   const isLogin = mode === "login";
   const [name, setName] = useState("田中 太郎");
   const [email, setEmail] = useState("tanaka@sample-works.co.jp");
@@ -23,23 +22,10 @@ export const Auth = ({ mode, onSwitch, onDone, isMobile, onBack }) => {
 
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(auth, email, password);
+        await login(email, password);
         onDone();
       } else {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        
-        try {
-          await setDoc(doc(db, 'users', user.uid), {
-            name: name,
-            email: email,
-            role: 'user',
-            createdAt: new Date().toISOString()
-          }, { merge: true });
-        } catch (dbErr) {
-          console.warn("Failed to save user name to Firestore, but authentication succeeded:", dbErr);
-        }
-        
+        await register(email, password, name);
         onDone();
       }
     } catch (err) {

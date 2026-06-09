@@ -415,9 +415,9 @@ export const Analyze = ({ url, onDone, isMobile }) => {
               </div>
               <div className="num muted" style={{ fontSize: 12, letterSpacing: "0.02em" }}>{c.url}</div>
             </div>
-            <button className="btn btn-ghost btn-sm" onClick={() => setEditing(!editing)}>
+            {/* <button className="btn btn-ghost btn-sm" onClick={() => setEditing(!editing)}>
               {editing ? "完了" : "修正する"}
-            </button>
+            </button> */}
           </div>
 
           <div style={{
@@ -469,7 +469,7 @@ export const Analyze = ({ url, onDone, isMobile }) => {
         </div>
 
         <div className="row" style={{ marginTop: 32, gap: 12, justifyContent: "flex-end" }}>
-          <button className="btn btn-ghost">手動で入力し直す</button>
+          {/* <button className="btn btn-ghost">手動で入力し直す</button> */}
           <button className="btn btn-primary btn-lg" onClick={handleFinish}>
             この内容で診断する →
           </button>
@@ -487,7 +487,7 @@ export const Diagnose = ({ company, onDone, isMobile }) => {
   const [timing, setTiming] = useState("3m");
   const [preexisting, setPreexisting] = useState(false);
 
-  const next = () => step < 3 ? setStep(step + 1) : onDone();
+  const next = () => step < 3 ? setStep(step + 1) : onDone({ budget, purpose, timing, preexisting });
   const prev = () => step > 0 ? setStep(step - 1) : null;
 
   return (
@@ -634,11 +634,37 @@ export const Diagnose = ({ company, onDone, isMobile }) => {
             <p className="muted sm" style={{ marginBottom: 28 }}>10 秒ほどで結果が表示されます</p>
             <div style={{ borderTop: "1px solid var(--line-ink)" }}>
               {[
-                { l: "会社", v: company?.name || "株式会社サンプルワークス" },
-                { l: "業種・規模", v: `${company?.industry || "ソフトウェア業"} · ${company?.employeeCount || 12} 名 · ${company?.prefecture || "東京都"}` },
-                { l: "検討事業", v: "IT ツール導入・DX 推進" },
-                { l: "投資規模", v: "1,000 〜 3,000 万円" },
-                { l: "実施時期", v: "3 ヶ月以内（公募前含む）" },
+                { l: "会社", v: company?.name || "未設定" },
+                { l: "業種・規模", v: `${company?.industry || "未設定"} · ${company?.employeeCount != null ? company.employeeCount + " 名" : "未設定"} · ${company?.prefecture || "未設定"}` },
+                { 
+                  l: "検討事業", 
+                  v: {
+                    dx: "ITツール導入・DX推進",
+                    equip: "設備投資・生産性向上",
+                    marketing: "販路開拓・マーケティング",
+                    new: "新事業・新分野展開",
+                    hr: "雇用・人材育成",
+                    green: "省エネ・脱炭素"
+                  }[purpose] || "未選択"
+                },
+                { 
+                  l: "投資規模", 
+                  v: {
+                    "-100": "100 万円未満",
+                    "100-1000": "100 〜 1,000 万円",
+                    "1000-3000": "1,000 〜 3,000 万円",
+                    "3000+": "3,000 万円以上"
+                  }[budget] || "未選択"
+                },
+                { 
+                  l: "実施時期", 
+                  v: {
+                    "1m": "1 ヶ月以内",
+                    "3m": "3 ヶ月以内（公募前含む）",
+                    "6m": "6 ヶ月以内",
+                    "1y": "1 年以内"
+                  }[timing] || "未選択"
+                },
                 { l: "採択歴", v: preexisting ? "あり" : "なし" },
               ].map((r, i) => (
                 <div key={i} className="between" style={{ padding: "16px 0", borderBottom: "1px solid var(--line)" }}>

@@ -337,9 +337,9 @@ const Analyze = ({ url, onDone, isMobile }) => {
               <div className="serif" style={{ fontSize: 22, fontWeight: 600, marginBottom: 4 }}>{c.name}</div>
               <div className="num muted" style={{ fontSize: 12, letterSpacing: "0.02em" }}>{c.url}</div>
             </div>
-            <button className="btn btn-ghost btn-sm" onClick={() => setEditing(!editing)}>
+            {/* <button className="btn btn-ghost btn-sm" onClick={() => setEditing(!editing)}>
               {editing ? "完了" : "修正する"}
-            </button>
+            </button> */}
           </div>
 
           <div style={{
@@ -382,7 +382,7 @@ const Analyze = ({ url, onDone, isMobile }) => {
         </div>
 
         <div className="row" style={{ marginTop: 32, gap: 12, justifyContent: "flex-end" }}>
-          <button className="btn btn-ghost">手動で入力し直す</button>
+          {/* <button className="btn btn-ghost">手動で入力し直す</button> */}
           <button className="btn btn-primary btn-lg" onClick={onDone}>
             この内容で診断する →
           </button>

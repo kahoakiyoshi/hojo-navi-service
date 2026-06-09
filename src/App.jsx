@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import './styles.css';
 import { useTweaks, TweaksPanel, TweakSection, TweakRadio } from './tweaks-panel';
 import { MobileStatus, BotNav } from './ui';
-import { Landing, Analyze, Diagnose } from './screens-1-discover';
-import { Result, SubsidyDetail } from './screens-2-result';
-import { MyPage } from './screens-3-mypage';
-import { Watchlist } from './screens-3-watchlist';
-import { Alerts } from './screens-3-alerts';
-import { Expert } from './screens-3-expert';
-import { Auth } from './screens-3-auth';
-import { AIChatPage } from './screens-3-aichat';
-import { Admin } from './screens-3-admin';
+import { Landing, Analyze, Diagnose } from './discover';
+import { Result, SubsidyDetail } from './result';
+import { MyPage } from './mypage';
+import { Watchlist } from './watchlist';
+import { Alerts } from './alerts';
+import { Expert } from './expert';
+import { Auth } from './auth';
+import { AIChatPage } from './aichat';
+import { Admin } from './admin';
 
 const SCREENS = [
   { id: "USR-01", label: "ランディング", group: "ユーザー: 発見", comp: "Landing" },
@@ -37,26 +37,88 @@ const DEFAULT_TWEAKS = {
 };
 
 import { MOCK_COMPANY } from './data';
-import { searchSubsidies, toggleWatchlist } from './services/db';
-import { auth, db } from './firebase';
-import { signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { searchSubsidies } from './services/db';
+import { useAuth } from './context/AuthContext';
+import { Routes, Route, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
+
+const PATH_TO_SCREEN = {
+  "/": "USR-01",
+  "/analyze": "USR-02",
+  "/diagnose": "USR-03",
+  "/search": "USR-04",
+  "/mypage": "USR-07",
+  "/alerts": "USR-09",
+  "/watchlist": "USR-10",
+  "/expert": "USR-11",
+  "/aichat": "AI-CHAT",
+  "/login": "AUTH-01",
+  "/register": "AUTH-02",
+  "/admin": "ADM-01"
+};
+
+const routeMap = {
+  "USR-01": "/",
+  "USR-02": "/analyze",
+  "USR-03": "/diagnose",
+  "USR-04": "/search",
+  "USR-05": "/subsidy",
+  "USR-07": "/mypage",
+  "USR-08": "/mypage",
+  "USR-09": "/alerts",
+  "USR-10": "/watchlist",
+  "USR-11": "/expert",
+  "AI-CHAT": "/aichat",
+  "AUTH-01": "/login",
+  "AUTH-02": "/register",
+  "ADM-01": "/admin"
+};
+
+const SubsidyDetailWrapper = ({ isMobile, subsidiesList, watchlist, onToggleWatchlist }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  return (
+    <SubsidyDetail 
+      isMobile={isMobile} 
+      subsidyId={id || "it-2026"} 
+      subsidiesList={subsidiesList} 
+      onBack={() => navigate("/search")} 
+      onConsult={() => navigate("/expert")} 
+      watchlist={watchlist} 
+      onToggleWatchlist={onToggleWatchlist} 
+    />
+  );
+};
 
 export default function App() {
-  const [screen, setScreen] = useState("USR-01");
-  const [subsidyId, setSubsidyId] = useState("it-2026");
+  const navigate = useNavigate();
+  const location = useLocation();
   const [t, setTweak] = useTweaks(DEFAULT_TWEAKS);
-  const [company, setCompany] = useState(MOCK_COMPANY);
+  const [company, setCompany] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("company");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error("Failed to parse saved company", e);
+        }
+      }
+    }
+    return MOCK_COMPANY;
+  });
   const [matchedSubsidies, setMatchedSubsidies] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null);
-  const [watchlist, setWatchlist] = useState([]);
-  const [authLoading, setAuthLoading] = useState(true);
+  const { user, role, isPremium, membershipStatus, watchlist, authLoading, logout, toggleWatchlist, upgradeToPremium } = useAuth();
   const [analyzeUrl, setAnalyzeUrl] = useState("https://sample-works.co.jp");
 
   const [isMobile, setIsMobile] = useState(typeof window !== "undefined" ? window.innerWidth < 768 : false);
   const [initialRedirectDone, setInitialRedirectDone] = useState(false);
+
+  const getScreenFromPath = (pathname) => {
+    if (pathname.startsWith("/subsidy/")) return "USR-05";
+    return PATH_TO_SCREEN[pathname] || "USR-01";
+  };
+  const screen = getScreenFromPath(location.pathname);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -67,47 +129,20 @@ export default function App() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        try {
-          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-          if (userDoc.exists()) {
-            setRole(userDoc.data().role || 'user');
-            setWatchlist(userDoc.data().watchlist || []);
-          } else {
-            setRole('user');
-            setWatchlist([]);
-          }
-        } catch (err) {
-          console.error("Error fetching user data:", err);
-          setRole('user');
-          setWatchlist([]);
-        }
-      } else {
-        setRole(null);
-        setWatchlist([]);
-      }
-      setAuthLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-
   // Router guard to secure admin and regular screens based on authentication and role
   useEffect(() => {
     if (authLoading) return;
 
     if (user) {
       if (screen === "ADM-01" && role !== 'admin') {
-        setScreen("USR-07"); // Redirect regular user away from Admin
+        navigate("/mypage", { replace: true });
       } else if (!initialRedirectDone && ["USR-01", "AUTH-01", "AUTH-02"].includes(screen)) {
-        setScreen(role === 'admin' ? "ADM-01" : "USR-07"); // Redirect logged-in user to dashboard on initial load
+        navigate(role === 'admin' ? "/admin" : "/mypage", { replace: true });
         setInitialRedirectDone(true);
       }
     } else {
       if (["USR-07", "USR-09", "USR-10", "USR-11", "AI-CHAT", "ADM-01"].includes(screen)) {
-        setScreen("USR-01"); // Redirect logged-out user to Landing
+        navigate("/", { replace: true });
       }
     }
   }, [screen, role, user, authLoading, initialRedirectDone]);
@@ -135,6 +170,9 @@ export default function App() {
 
   const updateCompanyAndSearch = async (updatedCompany) => {
     setCompany(updatedCompany);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("company", JSON.stringify(updatedCompany));
+    }
     setIsSearching(true);
     try {
       const results = await searchSubsidies(updatedCompany);
@@ -148,8 +186,8 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
-      setScreen("USR-01");
+      await logout();
+      navigate("/");
     } catch (e) {
       console.error("Logout failed", e);
     }
@@ -157,58 +195,18 @@ export default function App() {
 
   const handleToggleWatchlist = async (subsidyId) => {
     if (!user) {
-      setScreen("AUTH-01");
+      navigate("/login");
       return;
     }
-    const newList = watchlist.includes(subsidyId) 
-      ? watchlist.filter(id => id !== subsidyId) 
-      : [...watchlist, subsidyId];
-    setWatchlist(newList);
-    try {
-      await toggleWatchlist(user.uid, subsidyId);
-    } catch(e) {
-      console.error("Failed to update watchlist", e);
-      // Revert if failed
-      setWatchlist(watchlist);
-    }
+    await toggleWatchlist(subsidyId);
   };
 
-  const renderScreen = () => {
-    const goto = (id) => setScreen(id);
-    const openDetail = (id) => {
-      setSubsidyId(id || "it-2026");
-      setScreen("USR-05");
-    };
-    switch (screen) {
-      case "USR-01":
-        return <Landing isMobile={isMobile} onStart={(u) => { setAnalyzeUrl(u); setScreen("USR-02"); }} onLogin={() => setScreen("AUTH-01")} user={user} onGoToMyPage={() => setScreen(role === 'admin' ? "ADM-01" : "USR-07")} />;
-      case "USR-02":
-        return <Analyze isMobile={isMobile} url={analyzeUrl} onDone={(updatedCompany) => { updateCompanyAndSearch(updatedCompany); setScreen("USR-03"); }} />;
-      case "USR-03":
-        return <Diagnose isMobile={isMobile} company={company} onDone={() => setScreen("USR-04")} />;
-      case "USR-04":
-        return <Result isMobile={isMobile} company={company} subsidiesList={matchedSubsidies} isSearching={isSearching} onOpenDetail={openDetail} searchMode={t.searchMode} onSwitchMode={(m) => setTweak({ searchMode: m })} watchlist={watchlist} onToggleWatchlist={handleToggleWatchlist} />;
-      case "USR-05":
-        return <SubsidyDetail isMobile={isMobile} subsidyId={subsidyId} subsidiesList={matchedSubsidies} onBack={() => setScreen("USR-04")} onConsult={() => setScreen("USR-11")} watchlist={watchlist} onToggleWatchlist={handleToggleWatchlist} />;
-      case "USR-07":
-        return <MyPage isMobile={isMobile} onOpenDetail={openDetail} onNav={goto} onLogout={handleLogout} watchlist={watchlist} />;
-      case "USR-09":
-        return <Alerts isMobile={isMobile} onOpenDetail={openDetail} />;
-      case "USR-10":
-        return <Watchlist isMobile={isMobile} onOpenDetail={openDetail} watchlist={watchlist} onToggleWatchlist={handleToggleWatchlist} />;
-      case "USR-11":
-        return <Expert isMobile={isMobile} />;
-      case "AI-CHAT":
-        return <AIChatPage isMobile={isMobile} />;
-      case "AUTH-01":
-        return <Auth isMobile={isMobile} mode="login" onSwitch={(m) => setScreen(m === "register" ? "AUTH-02" : "AUTH-01")} onDone={() => setScreen("USR-07")} onBack={() => setScreen("USR-01")} />;
-      case "AUTH-02":
-        return <Auth isMobile={isMobile} mode="register" onSwitch={(m) => setScreen(m === "register" ? "AUTH-02" : "AUTH-01")} onDone={() => setScreen("USR-07")} onBack={() => setScreen("USR-01")} />;
-      case "ADM-01":
-        return <Admin />;
-      default:
-        return <div style={{ padding: 60 }}>Screen {screen} not found</div>;
-    }
+  const goto = (id) => {
+    navigate(routeMap[id] || "/");
+  };
+
+  const openDetail = (id) => {
+    navigate(`/subsidy/${id || "it-2026"}`);
   };
 
   const isLoggedInScreen = ["USR-04", "USR-05", "USR-07", "USR-09", "USR-10", "USR-11", "AI-CHAT", "ADM-01"].includes(screen);
@@ -249,7 +247,7 @@ export default function App() {
             ].filter(Boolean).map(item => (
               <button
                 key={item.id}
-                onClick={() => setScreen(item.id)}
+                onClick={() => goto(item.id)}
                 style={{
                   padding: "0 16px",
                   height: "100%",
@@ -292,13 +290,56 @@ export default function App() {
 
       {/* Main page content area */}
       <main style={{ minHeight: !isMobile && isLoggedInScreen ? "calc(100vh - 56px)" : "100vh", background: "var(--bg)" }}>
-        {renderScreen()}
+        <Routes>
+          <Route path="/" element={<Landing isMobile={isMobile} onStart={(u) => { setAnalyzeUrl(u); navigate("/analyze"); }} onLogin={() => navigate("/login")} user={user} onGoToMyPage={() => navigate(role === 'admin' ? "/admin" : "/mypage")} />} />
+          <Route path="/analyze" element={<Analyze isMobile={isMobile} url={analyzeUrl} onDone={(updatedCompany) => { updateCompanyAndSearch(updatedCompany); navigate("/diagnose"); }} />} />
+          <Route path="/diagnose" element={
+            <Diagnose 
+              isMobile={isMobile} 
+              company={company} 
+              onDone={(diagnoseData) => {
+                let currentCompany = company;
+                if ((currentCompany.employeeCount == null && !currentCompany.industry && !currentCompany.prefecture) && typeof window !== "undefined") {
+                  const saved = localStorage.getItem("company");
+                  if (saved) {
+                    try {
+                      currentCompany = JSON.parse(saved);
+                    } catch (e) {}
+                  }
+                }
+                const params = new URLSearchParams();
+                if (currentCompany.employeeCount != null) params.set("employeeCount", currentCompany.employeeCount);
+                if (currentCompany.industry) params.set("industry", currentCompany.industry);
+                if (currentCompany.prefecture) params.set("prefecture", currentCompany.prefecture);
+                if (currentCompany.name) params.set("name", currentCompany.name);
+                if (diagnoseData) {
+                  if (diagnoseData.purpose) params.set("purpose", diagnoseData.purpose);
+                  if (diagnoseData.budget) params.set("budget", diagnoseData.budget);
+                  if (diagnoseData.timing) params.set("timing", diagnoseData.timing);
+                  params.set("preexisting", String(diagnoseData.preexisting));
+                }
+                navigate(`/search?${params.toString()}`);
+              }} 
+            />
+          } />
+          <Route path="/search" element={<Result isMobile={isMobile} company={company} subsidiesList={matchedSubsidies} isSearching={isSearching} onOpenDetail={openDetail} searchMode={t.searchMode} onSwitchMode={(m) => setTweak({ searchMode: m })} watchlist={watchlist} onToggleWatchlist={handleToggleWatchlist} />} />
+          <Route path="/subsidy/:id" element={<SubsidyDetailWrapper isMobile={isMobile} subsidiesList={matchedSubsidies} watchlist={watchlist} onToggleWatchlist={handleToggleWatchlist} />} />
+          <Route path="/mypage" element={<MyPage isMobile={isMobile} onOpenDetail={openDetail} onNav={goto} onLogout={handleLogout} watchlist={watchlist} isPremium={isPremium} membershipStatus={membershipStatus} onUpgrade={upgradeToPremium} />} />
+          <Route path="/alerts" element={<Alerts isMobile={isMobile} onOpenDetail={openDetail} />} />
+          <Route path="/watchlist" element={<Watchlist isMobile={isMobile} onOpenDetail={openDetail} watchlist={watchlist} onToggleWatchlist={handleToggleWatchlist} />} />
+          <Route path="/expert" element={<Expert isMobile={isMobile} isPremium={isPremium} onUpgrade={upgradeToPremium} />} />
+          <Route path="/aichat" element={<AIChatPage isMobile={isMobile} isPremium={isPremium} onUpgrade={upgradeToPremium} />} />
+          <Route path="/login" element={<Auth isMobile={isMobile} mode="login" onSwitch={(m) => navigate(m === "register" ? "/register" : "/login")} onDone={() => navigate("/mypage")} onBack={() => navigate("/")} />} />
+          <Route path="/register" element={<Auth isMobile={isMobile} mode="register" onSwitch={(m) => navigate(m === "register" ? "/register" : "/login")} onDone={() => navigate("/mypage")} onBack={() => navigate("/")} />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       {/* Bottom Nav for Mobile view */}
       {isMobile && !["USR-01", "USR-02", "USR-03", "AUTH-01", "AUTH-02"].includes(screen) && (
         <div style={{ position: "sticky", bottom: 0, zIndex: 100, width: "100%" }}>
-          <BotNav active={screen} onChange={setScreen} />
+          <BotNav active={screen} onChange={goto} />
         </div>
       )}
 
