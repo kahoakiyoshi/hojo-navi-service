@@ -6,8 +6,8 @@ export const Auth = ({ mode, onSwitch, onDone, isMobile, onBack }) => {
   const { login, register } = useAuth();
   const isLogin = mode === "login";
   const [name, setName] = useState("田中 太郎");
-  const [email, setEmail] = useState("tanaka@sample-works.co.jp");
-  const [password, setPassword] = useState("Password123!");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [loading, setLoading] = useState(false);
 

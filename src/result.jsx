@@ -716,7 +716,7 @@ export const SubsidyDetail = ({ subsidyId, subsidiesList, onBack, onConsult, isM
                 `);
                 printWindow.document.close();
               }} style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 8px" }}>
-                <Ico name="pdf" size={12} /> PDF印刷 / プレビュー
+                <Ico name="pdf" size={12} /> 資料を作成する
               </button>
             </div>
             <p className="serif" style={{ color: "var(--ink)", lineHeight: 1.9, fontSize: 17, fontWeight: 500, marginBottom: 30, letterSpacing: "-0.005em" }}>{s.summary}</p>
