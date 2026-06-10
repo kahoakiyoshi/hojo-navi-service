@@ -182,7 +182,7 @@ export const MobileStatus = ({ time = "9:41", dark = false }) => (
 export const BotNav = ({ active, onChange }) => {
   const items = [
     { id: "USR-07", l: "ホーム", i: "home" },
-    { id: "USR-06", l: "検索", i: "search" },
+    { id: "USR-04", l: "検索", i: "search" },
     { id: "USR-10", l: "保存", i: "bookmarkF" },
     { id: "USR-09", l: "通知", i: "bell" },
     { id: "USR-11", l: "相談", i: "chat" },

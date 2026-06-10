@@ -213,6 +213,35 @@ export default function App() {
 
   return (
     <div className="app" style={{ display: "block", minHeight: "100vh" }}>
+      {/* Global Mobile Sticky Header for Logged-in screens */}
+      {isMobile && isLoggedInScreen && (
+        <div style={{
+          background: "var(--bg-elev)",
+          borderBottom: "1px solid var(--line)",
+          padding: "0 22px",
+          height: "50px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          flexShrink: 0
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div className="sb-mark" style={{ width: 24, height: 24, fontSize: 11, lineHeight: "24px" }}>HJ</div>
+            <div style={{ fontWeight: 600, fontSize: 15, fontFamily: "var(--font-display)" }}>
+              HojoNavi
+            </div>
+          </div>
+          <button className="btn btn-ghost btn-sm" style={{ padding: 0, borderRadius: "50%" }} onClick={() => navigate(role === 'admin' ? "/admin" : "/mypage")}>
+            <div style={{ width: 28, height: 28, borderRadius: "50%", background: "var(--navy)", color: "#fff", display: "grid", placeItems: "center", fontSize: 11, fontWeight: 600 }}>
+              {user?.name ? user.name.slice(0, 1) : "U"}
+            </div>
+          </button>
+        </div>
+      )}
+
       {/* Global Desktop Navigation Header for Logged-in screens */}
       {!isMobile && isLoggedInScreen && (
         <div style={{
@@ -331,7 +360,7 @@ export default function App() {
           <Route path="/aichat" element={<AIChatPage isMobile={isMobile} isPremium={isPremium} onUpgrade={upgradeToPremium} />} />
           <Route path="/login" element={<Auth isMobile={isMobile} mode="login" onSwitch={(m) => navigate(m === "register" ? "/register" : "/login")} onDone={() => navigate("/mypage")} onBack={() => navigate("/")} />} />
           <Route path="/register" element={<Auth isMobile={isMobile} mode="register" onSwitch={(m) => navigate(m === "register" ? "/register" : "/login")} onDone={() => navigate("/mypage")} onBack={() => navigate("/")} />} />
-          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin" element={<Admin isMobile={isMobile} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

@@ -162,8 +162,8 @@ export const ExpertChat = ({ exp }) => {
     <div style={{ padding: 16, borderTop: "1px solid var(--line)" }}>
       <div className="row" style={{ gap: 10 }}>
         <button className="btn btn-ghost btn-sm">添付</button>
-        <input className="input" placeholder="メッセージを入力..." style={{ flex: 1 }} />
-        <button className="btn btn-primary">送信 →</button>
+        <input className="input" placeholder="メッセージを入力..." style={{ flex: 1, minWidth: 0 }} />
+        <button className="btn btn-primary" style={{ flexShrink: 0 }}>送信 →</button>
       </div>
     </div>
   </div>

@@ -175,7 +175,7 @@ export const Result = ({ company, subsidiesList: passedSubsidies, isSearching, o
 
             <div style={{ borderBottom: "1px solid var(--line)" }}>
               {items.map((s, i) => (
-                <SubsidyCard key={s.id} s={s} onClick={() => onOpenDetail(s.id)} delay={i * 30} isSaved={watchlist.includes(s.id)} onToggleWatchlist={onToggleWatchlist} />
+                <SubsidyCard key={s.id} s={s} onClick={() => onOpenDetail(s.id)} delay={i * 30} isSaved={watchlist.includes(s.id)} onToggleWatchlist={onToggleWatchlist} isMobile={isMobile} />
               ))}
             </div>
 
@@ -204,11 +204,11 @@ export const Result = ({ company, subsidiesList: passedSubsidies, isSearching, o
   );
 };
 
-export const SubsidyCard = ({ s, onClick, delay = 0, isSaved, onToggleWatchlist }) => (
+export const SubsidyCard = ({ s, onClick, delay = 0, isSaved, onToggleWatchlist, isMobile }) => (
   <div className="fade-in" style={{
     cursor: "pointer",
     animationDelay: `${delay}ms`,
-    padding: "22px 4px",
+    padding: isMobile ? "16px 0" : "22px 4px",
     borderTop: "1px solid var(--line)",
     transition: "background 120ms",
     position: "relative"
@@ -216,35 +216,47 @@ export const SubsidyCard = ({ s, onClick, delay = 0, isSaved, onToggleWatchlist 
     onMouseEnter={e => e.currentTarget.style.background = "var(--bg-inset)"}
     onMouseLeave={e => e.currentTarget.style.background = ""}
     onClick={onClick}>
-    <div style={{ display: "grid", gridTemplateColumns: "76px 1fr 220px auto", gap: 20, alignItems: "start" }}>
-      <div className="num" style={{ fontSize: 44, fontWeight: 600, letterSpacing: "-0.05em", lineHeight: 0.9, color: "var(--ink)" }}>
+    <div style={{ display: "grid", gridTemplateColumns: isMobile ? "auto 1fr auto" : "76px 1fr 220px auto", gap: isMobile ? 14 : 20, alignItems: "start" }}>
+      <div className="num" style={{ fontSize: isMobile ? 32 : 44, fontWeight: 600, letterSpacing: "-0.05em", lineHeight: 0.9, color: "var(--ink)" }}>
         {s.score}
-        <div className="eyebrow" style={{ marginTop: 6 }}>Score</div>
+        <div className="eyebrow" style={{ marginTop: 6, fontSize: isMobile ? 9 : 10 }}>Score</div>
       </div>
       <div style={{ minWidth: 0 }}>
         <div className="row" style={{ gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
           <StatusBadge status={s.status} />
           <span className="eyebrow">{s.category}</span>
         </div>
-        <div className="serif" style={{ fontSize: 19, fontWeight: 600, marginBottom: 4, lineHeight: 1.3 }}>{s.name}</div>
+        <div className="serif" style={{ fontSize: isMobile ? 17 : 19, fontWeight: 600, marginBottom: 4, lineHeight: 1.3 }}>{s.name}</div>
         <div className="muted-2" style={{ fontSize: 11, fontFamily: "var(--font-mono)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 12 }}>{s.agency}</div>
         <div style={{ color: "var(--ink-2)", lineHeight: 1.7, fontSize: 13, maxWidth: 560 }}>{s.summary}</div>
-      </div>
-      <div className="col" style={{ gap: 12 }}>
-        <SpecRow label="補助上限" value={formatYen(s.maxAmount)} />
-        <SpecRow label="補助率" value={s.rateLabel} />
-        {s.adoptionRate != null && (
-          <SpecRow label="採択率" value={`${Math.round(s.adoptionRate * 100)}%`} />
+        {isMobile && (
+          <div className="col" style={{ gap: 8, marginTop: 14 }}>
+            <SpecRow label="補助上限" value={formatYen(s.maxAmount)} />
+            <SpecRow
+              label={s.status === "pre" ? "公募開始まで" : "申請締切まで"}
+              value={s.status === "pre" ? `${s.preOpenInDays} 日` : s.daysLeft > 0 ? `${s.daysLeft} 日` : "終了"}
+              urgent={s.daysLeft != null && s.daysLeft <= 21}
+            />
+          </div>
         )}
-        <SpecRow
-          label={s.status === "pre" ? "公募開始まで" : "申請締切まで"}
-          value={s.status === "pre" ? `${s.preOpenInDays} 日` : s.daysLeft > 0 ? `${s.daysLeft} 日` : "終了"}
-          urgent={s.daysLeft != null && s.daysLeft <= 21}
-        />
       </div>
+      {!isMobile && (
+        <div className="col" style={{ gap: 12 }}>
+          <SpecRow label="補助上限" value={formatYen(s.maxAmount)} />
+          <SpecRow label="補助率" value={s.rateLabel} />
+          {s.adoptionRate != null && (
+            <SpecRow label="採択率" value={`${Math.round(s.adoptionRate * 100)}%`} />
+          )}
+          <SpecRow
+            label={s.status === "pre" ? "公募開始まで" : "申請締切まで"}
+            value={s.status === "pre" ? `${s.preOpenInDays} 日` : s.daysLeft > 0 ? `${s.daysLeft} 日` : "終了"}
+            urgent={s.daysLeft != null && s.daysLeft <= 21}
+          />
+        </div>
+      )}
       <div className="col" style={{ gap: 10, alignItems: "flex-end" }}>
         <button className="btn btn-ghost btn-sm" onClick={e => { e.stopPropagation(); onToggleWatchlist && onToggleWatchlist(s.id); }} style={{ padding: "4px 8px" }}>
-          <Ico name={isSaved ? "bookmarkF" : "bookmark"} size={11} />{isSaved ? "保存済" : "保存"}
+          <Ico name={isSaved ? "bookmarkF" : "bookmark"} size={11} />{!isMobile && (isSaved ? "保存済" : "保存")}
         </button>
         <span className="muted" style={{ fontSize: 16, marginTop: 8 }}>→</span>
       </div>
@@ -513,7 +525,7 @@ export const SubsidyDetail = ({ subsidyId, subsidiesList, onBack, onConsult, isM
         borderBottom: "1px solid var(--line-ink)",
         display: "grid",
         gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(5, 1fr)",
-        gap: 0
+        gap: isMobile ? "24px 0" : 0
       }}>
         {[
           { l: "Match Score", v: s.score, u: "/ 100", main: true },
@@ -528,8 +540,8 @@ export const SubsidyDetail = ({ subsidyId, subsidiesList, onBack, onConsult, isM
           },
         ].map((m, i) => (
           <div key={i} style={{
-            paddingLeft: i ? 24 : 0,
-            borderLeft: i ? "1px solid var(--line)" : 0
+            paddingLeft: isMobile ? (i % 2 === 1 ? 24 : 0) : (i ? 24 : 0),
+            borderLeft: isMobile ? (i % 2 === 1 ? "1px solid var(--line)" : 0) : (i ? "1px solid var(--line)" : 0)
           }}>
             <div className="eyebrow" style={{ marginBottom: 12 }}>{m.l}</div>
             <div className="num" style={{
@@ -550,7 +562,7 @@ export const SubsidyDetail = ({ subsidyId, subsidiesList, onBack, onConsult, isM
         padding: isMobile ? "0 22px" : "0 56px",
         borderBottom: "1px solid var(--line)",
       }}>
-        <div className="row" style={{ gap: 0 }}>
+        <div className="row" style={{ gap: 0, overflowX: "auto", flexWrap: "nowrap", scrollbarWidth: "none", msOverflowStyle: "none" }}>
           {[
             { id: "overview", l: "概要" },
             { id: "reasons", l: "マッチ根拠" },
@@ -941,16 +953,17 @@ export const SubsidyDetail = ({ subsidyId, subsidiesList, onBack, onConsult, isM
               ].map((step, i) => (
                 <div key={i} style={{
                   padding: "22px 0", borderBottom: "1px solid var(--line)",
-                  display: "grid", gridTemplateColumns: "60px 1fr auto", gap: 20, alignItems: "center"
+                  display: "grid", gridTemplateColumns: isMobile ? "40px 1fr" : "60px 1fr auto", gap: isMobile ? 16 : 20, alignItems: "center"
                 }}>
-                  <div className="num" style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.04em", color: "var(--ink-4)" }}>
+                  <div className="num" style={{ fontSize: isMobile ? 24 : 28, fontWeight: 600, letterSpacing: "-0.04em", color: "var(--ink-4)", alignSelf: isMobile ? "start" : "center", paddingTop: isMobile ? 2 : 0 }}>
                     0{i + 1}
                   </div>
-                  <div>
+                  <div style={{ minWidth: 0 }}>
                     <div className="serif" style={{ fontSize: 17, fontWeight: 600 }}>{step.l}</div>
                     <div className="muted sm" style={{ marginTop: 4 }}>{step.d}</div>
+                    {isMobile && <div className="eyebrow" style={{ marginTop: 8 }}>{step.t}</div>}
                   </div>
-                  <div className="eyebrow" style={{ whiteSpace: "nowrap" }}>{step.t}</div>
+                  {!isMobile && <div className="eyebrow" style={{ whiteSpace: "nowrap" }}>{step.t}</div>}
                 </div>
               ))}
             </div>
@@ -997,22 +1010,30 @@ export const SubsidyDetail = ({ subsidyId, subsidiesList, onBack, onConsult, isM
                     };
 
                     return (
-                      <div key={i} style={{ padding: "18px 0", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <div className="row" style={{ gap: 16 }}>
-                          <span className="num muted-2" style={{ fontSize: 11 }}>0{i + 1}</span>
-                          <div>
+                      <div key={i} style={{ 
+                        padding: "18px 0", 
+                        borderBottom: "1px solid var(--line)", 
+                        display: "flex", 
+                        flexDirection: isMobile ? "column" : "row",
+                        justifyContent: "space-between", 
+                        alignItems: isMobile ? "start" : "center",
+                        gap: isMobile ? 14 : 0
+                      }}>
+                        <div className="row" style={{ gap: 16, alignItems: "flex-start" }}>
+                          <span className="num muted-2" style={{ fontSize: 11, marginTop: 4 }}>0{i + 1}</span>
+                          <div style={{ minWidth: 0 }}>
                             <div className="serif" style={{ fontSize: 16, fontWeight: 600 }}>{file.name}</div>
                             <div className="muted-2 tiny" style={{ marginTop: 2 }}>
                               {file.type === "form" ? "申請様式 (ダウンロード可)" : file.type === "guideline" ? "公募要領 (ダウンロード可)" : "交付要綱 (ダウンロード可)"}
                             </div>
                           </div>
                         </div>
-                        <div className="row" style={{ gap: 8, marginLeft: "auto" }}>
+                        <div className="row" style={{ gap: 8, marginLeft: isMobile ? 0 : "auto", overflowX: "auto", maxWidth: "100%", paddingBottom: isMobile ? 4 : 0 }}>
                           {file.data && (
-                            <button className="btn btn-ghost btn-sm" onClick={handleDownload}>ダウンロード</button>
+                            <button className="btn btn-ghost btn-sm" onClick={handleDownload} style={{ flexShrink: 0 }}>ダウンロード</button>
                           )}
-                          <button className="btn btn-ghost btn-sm">AI ドラフト</button>
-                          <button className="btn btn-ghost btn-sm">アップロード</button>
+                          <button className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>AI ドラフト</button>
+                          <button className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>アップロード</button>
                         </div>
                       </div>
                     );
@@ -1074,17 +1095,25 @@ export const SubsidyDetail = ({ subsidyId, subsidiesList, onBack, onConsult, isM
                 }
 
                 return docsList.map((doc, i) => (
-                  <div key={i} style={{ padding: "18px 0", borderBottom: "1px solid var(--line)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <div className="row" style={{ gap: 16 }}>
-                      <span className="num muted-2" style={{ fontSize: 11 }}>0{i + 1}</span>
-                      <div>
+                  <div key={i} style={{ 
+                    padding: "18px 0", 
+                    borderBottom: "1px solid var(--line)", 
+                    display: "flex", 
+                    flexDirection: isMobile ? "column" : "row",
+                    justifyContent: "space-between", 
+                    alignItems: isMobile ? "start" : "center",
+                    gap: isMobile ? 14 : 0
+                  }}>
+                    <div className="row" style={{ gap: 16, alignItems: "flex-start" }}>
+                      <span className="num muted-2" style={{ fontSize: 11, marginTop: 4 }}>0{i + 1}</span>
+                      <div style={{ minWidth: 0 }}>
                         <div className="serif" style={{ fontSize: 16, fontWeight: 600 }}>{doc}</div>
                         <div className="muted-2 tiny" style={{ marginTop: 2 }}>PDF · Word 形式 (アップロード必須)</div>
                       </div>
                     </div>
-                    <div className="row" style={{ gap: 8, marginLeft: "auto" }}>
-                      <button className="btn btn-ghost btn-sm">AI ドラフト</button>
-                      <button className="btn btn-ghost btn-sm">アップロード</button>
+                    <div className="row" style={{ gap: 8, marginLeft: isMobile ? 0 : "auto", overflowX: "auto", maxWidth: "100%", paddingBottom: isMobile ? 4 : 0 }}>
+                      <button className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>AI ドラフト</button>
+                      <button className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>アップロード</button>
                     </div>
                   </div>
                 ));

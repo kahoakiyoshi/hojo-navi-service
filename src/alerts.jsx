@@ -60,11 +60,11 @@ export const Alerts = ({ onOpenDetail, isMobile }) => {
               borderBottom: "1px solid var(--line)",
               cursor: "pointer",
               display: "grid",
-              gridTemplateColumns: "60px 1fr 200px 24px",
-              gap: 24, alignItems: "start",
+              gridTemplateColumns: isMobile ? "auto 1fr auto" : "60px 1fr 200px 24px",
+              gap: isMobile ? 16 : 24, alignItems: "start",
               borderTop: i === 0 ? "1px solid var(--line)" : 0
             }} onClick={() => onOpenDetail(a.subsidyId)}>
-              <div className="num muted-2" style={{ fontSize: 11, letterSpacing: "0.04em" }}>
+              <div className="num muted-2" style={{ fontSize: 11, letterSpacing: "0.04em", paddingTop: isMobile ? 2 : 0 }}>
                 {String(i + 1).padStart(2, "0")}
               </div>
               <div style={{ minWidth: 0 }}>
@@ -75,10 +75,17 @@ export const Alerts = ({ onOpenDetail, isMobile }) => {
                 </div>
                 <div className="serif" style={{ fontSize: 17, fontWeight: 600, marginBottom: 6 }}>{a.subsidyName}</div>
                 <div className="muted sm" style={{ lineHeight: 1.7, maxWidth: 560 }}>{a.body}</div>
+                {isMobile && (
+                  <div className="num muted-2" style={{ fontSize: 11, marginTop: 8 }}>
+                    {a.receivedAt}
+                  </div>
+                )}
               </div>
-              <div className="num muted-2" style={{ fontSize: 11, textAlign: "right" }}>
-                {a.receivedAt}
-              </div>
+              {!isMobile && (
+                <div className="num muted-2" style={{ fontSize: 11, textAlign: "right" }}>
+                  {a.receivedAt}
+                </div>
+              )}
               <div className="muted" style={{ fontSize: 14, textAlign: "right" }}>→</div>
             </div>
           );

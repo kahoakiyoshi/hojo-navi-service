@@ -132,8 +132,8 @@ export const AIChatPage = ({ isMobile, isPremium, onUpgrade }) => {
 
         <form onSubmit={e => { e.preventDefault(); send(draft); }} className="row" style={{ gap: 0, border: "1px solid var(--line-strong)" }}>
           <input className="input" placeholder="補助金について自由に質問..." value={draft} onChange={e => setDraft(e.target.value)} disabled={loading}
-            style={{ border: 0, padding: "14px 18px", flex: 1 }} />
-          <button className="btn btn-primary" disabled={loading || !draft.trim()} style={{ borderRadius: 0, padding: "14px 22px" }}>
+            style={{ border: 0, padding: "14px 18px", flex: 1, minWidth: 0 }} />
+          <button className="btn btn-primary" disabled={loading || !draft.trim()} style={{ borderRadius: 0, padding: "14px 22px", flexShrink: 0 }}>
             送信 →
           </button>
         </form>
