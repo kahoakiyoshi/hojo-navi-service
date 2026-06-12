@@ -29,7 +29,7 @@ const Result = ({ onOpenDetail, onSwitchMode, searchMode, isMobile }) => {
             letterSpacing: "-0.02em",
             lineHeight: 1.2,
           }}>
-            <span className="num" style={{ fontWeight: 600 }}>{SUBSIDIES.length}</span> 件の補助金が<br />
+            <CountUp to={SUBSIDIES.length} dur={1100} className="num" style={{ fontWeight: 600 }} /> 件の補助金が<br />
             貴社の条件に<em style={{ fontStyle: "italic", color: "var(--ink-3)" }}>マッチ</em>しました
           </h1>
           {!isMobile && (
@@ -148,7 +148,7 @@ const Result = ({ onOpenDetail, onSwitchMode, searchMode, isMobile }) => {
               <div>
                 <div className="eyebrow" style={{ marginBottom: 8 }}>判断に迷ったら</div>
                 <div className="serif" style={{ fontSize: 19, fontWeight: 600, marginBottom: 6 }}>
-                  株式会社CrownStrategy JV の専門家ネットワーク
+                  秋吉×岡田 JV の専門家ネットワーク
                 </div>
                 <div className="muted sm" style={{ lineHeight: 1.65 }}>
                   中小企業診断士・行政書士・社労士による <strong style={{ color: "var(--ink)" }}>初回 30 分無料相談</strong>。書類の準備状況から伴走支援します。
@@ -163,31 +163,34 @@ const Result = ({ onOpenDetail, onSwitchMode, searchMode, isMobile }) => {
   );
 };
 
-const SubsidyCard = ({ s, onClick, delay = 0 }) => (
+const SubsidyCard = ({ s, onClick, delay = 0 }) => {
+  const cc = catColor(s.category);
+  return (
   <div className="fade-in" style={{
     cursor: "pointer",
     animationDelay: `${delay}ms`,
-    padding: "22px 4px",
+    padding: "22px 4px 22px 20px",
     borderTop: "1px solid var(--line)",
+    borderLeft: `3px solid ${cc.fg}`,
     transition: "background 120ms",
     position: "relative"
   }}
     onMouseEnter={e => e.currentTarget.style.background = "var(--bg-inset)"}
     onMouseLeave={e => e.currentTarget.style.background = ""}
     onClick={onClick}>
-    <div style={{ display: "grid", gridTemplateColumns: "76px 1fr 220px auto", gap: 20, alignItems: "start" }}>
-      <div className="num" style={{ fontSize: 44, fontWeight: 600, letterSpacing: "-0.05em", lineHeight: 0.9, color: "var(--ink)" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "76px 1fr 200px auto", gap: 20, alignItems: "start" }}>
+      <div className="num" style={{ fontSize: 44, fontWeight: 600, letterSpacing: "-0.05em", lineHeight: 0.9, color: cc.fg }}>
         {s.score}
         <div className="eyebrow" style={{ marginTop: 6 }}>Score</div>
       </div>
       <div style={{ minWidth: 0 }}>
         <div className="row" style={{ gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
           <StatusBadge status={s.status} />
-          <span className="eyebrow">{s.category}</span>
+          <CategoryTag category={s.category} />
         </div>
         <div className="serif" style={{ fontSize: 19, fontWeight: 600, marginBottom: 4, lineHeight: 1.3 }}>{s.name}</div>
         <div className="muted-2" style={{ fontSize: 11, fontFamily: "var(--font-mono)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 12 }}>{s.agency}</div>
-        <div style={{ color: "var(--ink-2)", lineHeight: 1.7, fontSize: 13, maxWidth: 560 }}>{s.summary}</div>
+        <div style={{ color: "var(--ink-2)", lineHeight: 1.7, fontSize: 13, maxWidth: 540 }}>{s.summary}</div>
       </div>
       <div className="col" style={{ gap: 12 }}>
         <SpecRow label="補助上限" value={window.formatYen(s.maxAmount)} />
@@ -209,7 +212,8 @@ const SubsidyCard = ({ s, onClick, delay = 0 }) => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 const SpecRow = ({ label, value, urgent }) => (
   <div className="between" style={{ alignItems: "baseline" }}>
@@ -356,7 +360,7 @@ const SubsidyDetail = ({ subsidyId, onBack, onConsult, isMobile }) => {
           <div>
             <div className="row" style={{ gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
               <StatusBadge status={s.status} />
-              <span className="eyebrow">{s.category}</span>
+              <CategoryTag category={s.category} />
               <span className="eyebrow">ID — {s.id.toUpperCase()}</span>
             </div>
             <h1 className="display" style={{
@@ -382,11 +386,11 @@ const SubsidyDetail = ({ subsidyId, onBack, onConsult, isMobile }) => {
 
       {/* Stat row — editorial */}
       <div style={{
-        padding: isMobile ? "24px 22px" : "32px 56px",
+        padding: isMobile ? "26px 22px" : "36px 56px",
         borderBottom: "1px solid var(--line-ink)",
         display: "grid",
-        gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(5, 1fr)",
-        gap: 0
+        gridTemplateColumns: isMobile ? "1fr 1fr" : "1.2fr 1fr 1fr 1fr 1fr",
+        gap: isMobile ? "24px 0" : 0
       }}>
         {[
           { l: "Match Score", v: s.score, u: "/ 100", main: true },
@@ -400,20 +404,28 @@ const SubsidyDetail = ({ subsidyId, onBack, onConsult, isMobile }) => {
             urgent: s.daysLeft != null && s.daysLeft <= 21
           },
         ].map((m, i) => (
-          <div key={i} style={{
-            paddingLeft: i ? 24 : 0,
-            borderLeft: i ? "1px solid var(--line)" : 0
-          }}>
-            <div className="eyebrow" style={{ marginBottom: 12 }}>{m.l}</div>
-            <div className="num" style={{
-              fontSize: m.main ? 48 : 28,
-              fontWeight: 600,
-              letterSpacing: "-0.03em",
-              lineHeight: 1,
-              color: m.urgent ? "var(--crimson)" : "var(--ink)"
-            }}>
-              {m.v}<span style={{ fontSize: 12, color: "var(--ink-4)", marginLeft: 4, fontWeight: 500, letterSpacing: 0 }}>{m.u}</span>
-            </div>
+          <div
+            key={i}
+            className={"statcell" + (m.main ? " is-accent" : m.urgent ? " is-amber" : "")}
+            style={{
+              paddingLeft: !isMobile && i ? 24 : 0,
+              borderLeft: !isMobile && i ? "1px solid var(--line)" : 0
+            }}
+          >
+            <div className="statcell-label" style={{ marginBottom: 14 }}>{m.l}</div>
+            {m.main ? (
+              <StatFigure to={m.v} suffix={m.u} size={46} accent="var(--navy)" />
+            ) : (
+              <div className="num" style={{
+                fontSize: 28,
+                fontWeight: 600,
+                letterSpacing: "-0.03em",
+                lineHeight: 1,
+                color: m.urgent ? "var(--crimson)" : "var(--ink)"
+              }}>
+                {m.v}<span style={{ fontSize: 12, color: "var(--ink-4)", marginLeft: 4, fontWeight: 500, letterSpacing: 0 }}>{m.u}</span>
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -476,7 +488,25 @@ const SubsidyDetail = ({ subsidyId, onBack, onConsult, isMobile }) => {
               </div>
 
               <div className="eyebrow" style={{ marginBottom: 14, marginTop: 36 }}>採択事例</div>
-              <Placeholder label="採択事例3件 (秋吉氏監修コメント付き)" h={120} />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 14 }}>
+                {[
+                  { c: "株式会社 A", d: "クラウド経費精算ツール導入", id: "case-a" },
+                  { c: "株式会社 B", d: "営業支援ツール一新", id: "case-b" },
+                  { c: "株式会社 C", d: "案件管理SaaS導入", id: "case-c" },
+                ].map((cs, ci) => (
+                  <div key={cs.id}>
+                    <image-slot
+                      id={`detail-${s.id}-${cs.id}`}
+                      src={window.STOCK?.cases?.[ci]}
+                      style={{ width: "100%", height: "120px", display: "block", marginBottom: 8 }}
+                      shape="rect"
+                      placeholder="事例写真"
+                    ></image-slot>
+                    <div className="serif" style={{ fontSize: 13, fontWeight: 600 }}>{cs.c}</div>
+                    <div className="muted-2 tiny" style={{ marginTop: 2 }}>{cs.d}</div>
+                  </div>
+                ))}
+              </div>
             </div>
             <aside className="col" style={{ gap: 32 }}>
               <div>
@@ -535,7 +565,7 @@ const SubsidyDetail = ({ subsidyId, onBack, onConsult, isMobile }) => {
           <div style={{ maxWidth: 800 }}>
             <div className="eyebrow" style={{ marginBottom: 14 }}>このスコアの根拠 — Why this score</div>
             <div className="row" style={{ gap: 28, marginBottom: 36, alignItems: "baseline" }}>
-              <div className="num" style={{ fontSize: 96, fontWeight: 600, letterSpacing: "-0.05em", lineHeight: 0.9 }}>{s.score}</div>
+              <StatFigure to={s.score} size={72} accent="var(--navy)" />
               <div>
                 <div className="serif" style={{ fontSize: 22, fontWeight: 600, marginBottom: 6 }}>Match Score</div>
                 <div className="muted sm">業種・規模・事業内容の 3 軸で算出。100 点満点。</div>

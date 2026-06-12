@@ -92,9 +92,9 @@ const App = () => {
     <div className="app">
       <aside className="sidebar">
         <div className="sb-brand">
-          <div className="sb-mark">HJ</div>
+          <div className="sb-mark">泉</div>
           <div className="sb-name">
-            HojoNavi
+            補助金の泉
             <small>補助金インテリジェンスAI</small>
           </div>
         </div>
@@ -115,14 +115,14 @@ const App = () => {
         <div style={{ flex: 1 }} />
         <div style={{ padding: 14, borderTop: "1px solid var(--line)", fontSize: 11, color: "var(--ink-4)", fontFamily: "var(--font-mono)", lineHeight: 1.6 }}>
           v0.4 · 5/27 hi-fi prototype<br />
-          株式会社CrownStrategy JV
+          秋吉×岡田 JV
         </div>
       </aside>
 
       <main className="canvas">
         <div className="cv-topbar">
           <span className="cv-crumbs">
-            HojoNavi / <strong>{cur?.label}</strong>
+            補助金の泉 / <strong>{cur?.label}</strong>
           </span>
           <span className="num muted-2" style={{ fontSize: 10, letterSpacing: "0.08em" }}>{cur?.id}</span>
           <span className="cv-spacer" />

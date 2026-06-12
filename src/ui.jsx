@@ -198,3 +198,114 @@ export const BotNav = ({ active, onChange }) => {
     </div>
   );
 };
+
+// ------- Category color system -------
+export const CATEGORY_COLORS = {
+  "DX・IT":               { fg: "var(--c-dx)",      soft: "var(--c-dx-soft)" },
+  "設備投資・新商品開発":  { fg: "var(--c-equip)",   soft: "var(--c-equip-soft)" },
+  "販路開拓":             { fg: "var(--c-sales)",   soft: "var(--c-sales-soft)" },
+  "事業転換・再構築":      { fg: "var(--c-pivot)",   soft: "var(--c-pivot-soft)" },
+  "雇用・人材":           { fg: "var(--c-hr)",      soft: "var(--c-hr-soft)" },
+  "脱炭素・省エネ":        { fg: "var(--c-green)",   soft: "var(--c-green-soft)" },
+  "地域・DX":             { fg: "var(--c-region)",  soft: "var(--c-region-soft)" },
+  "起業・創業":           { fg: "var(--c-startup)", soft: "var(--c-startup-soft)" },
+};
+export const catColor = (category) => CATEGORY_COLORS[category] || { fg: "var(--navy)", soft: "var(--navy-soft)" };
+
+export const CategoryTag = ({ category, size = "sm" }) => {
+  const c = catColor(category);
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: 6,
+      padding: size === "sm" ? "3px 9px" : "4px 11px",
+      background: c.soft,
+      color: c.fg,
+      fontSize: size === "sm" ? 10 : 11,
+      fontFamily: "var(--font-mono)",
+      fontWeight: 600,
+      letterSpacing: "0.04em",
+      borderRadius: 2,
+      whiteSpace: "nowrap",
+    }}>
+      <span className="cat-dot" style={{ background: c.fg }} />
+      {category}
+    </span>
+  );
+};
+
+// ------- Water ripple motif — a spring welling up (泉) -------
+export const Ripples = ({ live = false }) => (
+  <div className="ripples" aria-hidden="true">
+    <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <radialGradient id="spring-source" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="var(--navy-2)" stopOpacity="0.32" />
+          <stop offset="40%" stopColor="var(--navy)" stopOpacity="0.12" />
+          <stop offset="100%" stopColor="var(--navy)" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      {/* light pooling at the spring's source */}
+      <circle cx="505" cy="92" r="150" fill="url(#spring-source)" />
+      {/* continuously welling rings */}
+      <g className={live ? "ripple-live" : ""} transform="translate(505 92)">
+        <circle className="ripple-ring" cx="0" cy="0" r="6" />
+        <circle className="ripple-ring" cx="0" cy="0" r="6" />
+        <circle className="ripple-ring" cx="0" cy="0" r="6" />
+        <circle className="ripple-ring" cx="0" cy="0" r="6" />
+        <circle className="ripple-ring" cx="0" cy="0" r="6" />
+      </g>
+      {/* the welling point itself */}
+      <circle className="spring-eye" cx="505" cy="92" r="5" />
+    </svg>
+  </div>
+);
+
+// ------- Count-up numeric — animates on mount -------
+export const CountUp = ({ to, decimals = 0, dur = 1500, delay = 0, format = true, className, style }) => {
+  const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const [val, setVal] = React.useState(reduce ? to : 0);
+  React.useEffect(() => {
+    if (reduce) { setVal(to); return; }
+    let raf;
+    const startT = performance.now() + delay;
+    const tick = (now) => {
+      if (now < startT) { raf = requestAnimationFrame(tick); return; }
+      const p = Math.min(1, (now - startT) / dur);
+      // easeOutExpo — fast start, long graceful settle
+      const eased = p >= 1 ? 1 : 1 - Math.pow(2, -10 * p);
+      setVal(to * eased);
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else setVal(to);
+    };
+    raf = requestAnimationFrame(tick);
+    // Fallback: guarantee the final value even if rAF is throttled (hidden tab)
+    const guard = setTimeout(() => setVal(v => (v >= to ? v : to)), delay + dur + 120);
+    return () => { cancelAnimationFrame(raf); clearTimeout(guard); };
+  }, [to]);
+  const display = format
+    ? val.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    : val.toFixed(decimals);
+  return <span className={className} style={style}>{display}</span>;
+};
+
+// ------- StatFigure — oversized editorial figure w/ hanging affixes -------
+export const StatFigure = ({
+  prefix, to, decimals = 0, suffix, approx = false,
+  size = 72, accent, delay = 0, format = true,
+  affixSize, prefixSize
+}) => {
+  const af = affixSize || Math.max(12, Math.round(size * 0.2));
+  const pf = prefixSize || Math.max(18, Math.round(size * 0.42));
+  return (
+    <div className="statfig" style={{ color: accent || "var(--ink)" }}>
+      {approx && <span className="statfig-approx" style={{ fontSize: af }}>≈</span>}
+      {prefix && <span className="statfig-prefix" style={{ fontSize: pf }}>{prefix}</span>}
+      <CountUp
+        to={to} decimals={decimals} delay={delay} format={format}
+        className="num statfig-num"
+        style={{ fontSize: size }}
+      />
+      {suffix && <span className="statfig-suffix" style={{ fontSize: af }}>{suffix}</span>}
+    </div>
+  );
+};

@@ -60,32 +60,33 @@ export const MyPage = ({ onOpenDetail, onNav, isMobile, onLogout, watchlist = []
 
       {/* Stats row */}
       <div style={{
-        padding: isMobile ? "20px 22px" : "28px 56px",
+        padding: isMobile ? "24px 22px" : "34px 56px",
         borderBottom: "1px solid var(--line)",
         display: "grid",
         gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",
-        gap: 0,
+        gap: isMobile ? "26px 0" : 0,
       }}>
         {[
-          { l: "マッチ補助金", v: "10", u: "件", to: "USR-04" },
-          { l: "ウォッチ中", v: String(watchlist.length).padStart(2, "0"), u: "件", to: "USR-10" },
-          { l: "未読アラート", v: String(unread).padStart(2, "0"), u: "件", to: "USR-09", hot: true },
-          { l: "申請準備中", v: "01", u: "件", to: "USR-07" },
+          { l: "マッチ補助金", v: 10, u: "件", to: "USR-04" },
+          { l: "ウォッチ中", v: watchlist.length, u: "件", to: "USR-10" },
+          { l: "未読アラート", v: unread, u: "件", to: "USR-09", hot: true },
+          { l: "申請準備中", v: 1, u: "件", to: "USR-07" },
         ].map((s, i) => (
-          <div key={i} onClick={() => onNav(s.to)} style={{
-            cursor: "pointer",
-            paddingLeft: i ? 24 : 0,
-            borderLeft: i ? "1px solid var(--line)" : 0
-          }}>
-            <div className="eyebrow" style={{ marginBottom: 10, color: s.hot ? "var(--amber)" : undefined }}>{s.l}</div>
-            <div className="num" style={{
-              fontSize: isMobile ? 32 : 42,
-              fontWeight: 600,
-              letterSpacing: "-0.04em",
-              lineHeight: 1,
-              color: s.hot ? "var(--amber)" : "var(--ink)"
-            }}>
-              {s.v}<span style={{ fontSize: 12, color: "var(--ink-4)", marginLeft: 4, fontWeight: 500, letterSpacing: 0 }}>{s.u}</span>
+          <div
+            key={i}
+            onClick={() => onNav(s.to)}
+            className={"statcell" + (s.hot ? " is-amber" : "")}
+            style={{
+              cursor: "pointer",
+              paddingLeft: !isMobile && i ? 28 : 0,
+              paddingRight: isMobile ? 18 : 0,
+              borderLeft: !isMobile && i ? "1px solid var(--line)" : 0,
+              borderRight: isMobile && i % 2 === 0 ? "1px solid var(--line)" : 0
+            }}
+          >
+            <div className="statcell-label" style={{ marginBottom: 14 }}>{s.l}</div>
+            <div className="statcell-num">
+              {s.v}<span className="statcell-unit">{s.u}</span>
             </div>
           </div>
         ))}

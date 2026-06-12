@@ -367,6 +367,31 @@ window.MOCK_EXPERTS = [
   }
 ];
 
+// Curated stock photography (Unsplash) — business / office / portraits
+// Used as image-slot src defaults; user can drag to override.
+const U = (id, w) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w || 800}&q=70`;
+window.STOCK = {
+  hero: U("1542744173-8e7e53415bb0", 1000),       // team around laptop, meeting
+  heroAlt: U("1600880292203-757bb62b4baf", 1000), // handshake / consultation
+  cases: [
+    U("1497366754035-f200968a6e72", 600),  // modern office interior
+    U("1556761175-b413da4baf72", 600),     // office workers collaborating
+    U("1531973576160-7125cd663d86", 600),  // laptop / SaaS work
+  ],
+  experts: {
+    e1: U("1560250097-0b93528c311a", 300), // businessman portrait
+    e2: U("1573496359142-b8d87734a5a2", 300), // businesswoman portrait
+    e3: U("1564564321837-a57b7070 ", 300), // fallback handled below
+  },
+  office: U("1486406146926-c627a92ad1ab", 1000),
+};
+// safe expert portraits (verified-style ids)
+window.STOCK.experts = {
+  e1: U("1560250097-0b93528c311a", 300),
+  e2: U("1573497019940-1c28c88b4f3e", 300),
+  e3: U("1568602471122-7832951cc4c5", 300),
+};
+
 window.formatYen = (n) => {
   if (n >= 100000000) return `${(n / 100000000).toFixed(1)}億円`;
   if (n >= 10000) return `${(n / 10000).toLocaleString("ja-JP")}万円`;

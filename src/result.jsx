@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { formatYen } from './data';
-import { StatusBadge, ScoreRing, Ico, Placeholder } from './ui';
+import { StatusBadge, ScoreRing, Ico, Placeholder, CountUp, catColor, CategoryTag } from './ui';
 import { fetchSubsidies, fetchSubsidyDetail } from './services/db';
 
 // ====== USR-04: Diagnose Result ======
@@ -56,7 +56,7 @@ export const Result = ({ company, subsidiesList: passedSubsidies, isSearching, o
             letterSpacing: "-0.02em",
             lineHeight: 1.2,
           }}>
-            <span className="num" style={{ fontWeight: 600 }}>{subsidiesList.length}</span> 件の補助金が<br />
+            <CountUp to={subsidiesList.length} dur={1100} className="num" style={{ fontWeight: 600 }} /> 件の補助金が<br />
             貴社の条件に<em style={{ fontStyle: "italic", color: "var(--ink-3)" }}>マッチ</em>しました
           </h1>
           {!isMobile && (
@@ -189,7 +189,7 @@ export const Result = ({ company, subsidiesList: passedSubsidies, isSearching, o
               <div>
                 <div className="eyebrow" style={{ marginBottom: 8 }}>判断に迷ったら</div>
                 <div className="serif" style={{ fontSize: 19, fontWeight: 600, marginBottom: 6 }}>
-                  株式会社CrownStrategy JV の専門家ネットワーク
+                  秋吉×岡田 JV の専門家ネットワーク
                 </div>
                 <div className="muted sm" style={{ lineHeight: 1.65 }}>
                   中小企業診断士・行政書士・社労士による <strong style={{ color: "var(--ink)" }}>初回 30 分無料相談</strong>。書類の準備状況から伴走支援します。
@@ -204,12 +204,15 @@ export const Result = ({ company, subsidiesList: passedSubsidies, isSearching, o
   );
 };
 
-export const SubsidyCard = ({ s, onClick, delay = 0, isSaved, onToggleWatchlist, isMobile }) => (
+export const SubsidyCard = ({ s, onClick, delay = 0, isSaved, onToggleWatchlist, isMobile }) => {
+  const cc = catColor(s.category);
+  return (
   <div className="fade-in" style={{
     cursor: "pointer",
     animationDelay: `${delay}ms`,
-    padding: isMobile ? "16px 0" : "22px 4px",
+    padding: isMobile ? "16px 0 16px 16px" : "22px 4px 22px 20px",
     borderTop: "1px solid var(--line)",
+    borderLeft: `3px solid ${cc.fg}`,
     transition: "background 120ms",
     position: "relative"
   }}
@@ -217,14 +220,14 @@ export const SubsidyCard = ({ s, onClick, delay = 0, isSaved, onToggleWatchlist,
     onMouseLeave={e => e.currentTarget.style.background = ""}
     onClick={onClick}>
     <div style={{ display: "grid", gridTemplateColumns: isMobile ? "auto 1fr auto" : "76px 1fr 220px auto", gap: isMobile ? 14 : 20, alignItems: "start" }}>
-      <div className="num" style={{ fontSize: isMobile ? 32 : 44, fontWeight: 600, letterSpacing: "-0.05em", lineHeight: 0.9, color: "var(--ink)" }}>
+      <div className="num" style={{ fontSize: isMobile ? 32 : 44, fontWeight: 600, letterSpacing: "-0.05em", lineHeight: 0.9, color: cc.fg }}>
         {s.score}
         <div className="eyebrow" style={{ marginTop: 6, fontSize: isMobile ? 9 : 10 }}>Score</div>
       </div>
       <div style={{ minWidth: 0 }}>
         <div className="row" style={{ gap: 8, marginBottom: 8, flexWrap: "wrap" }}>
           <StatusBadge status={s.status} />
-          <span className="eyebrow">{s.category}</span>
+          <CategoryTag category={s.category} />
         </div>
         <div className="serif" style={{ fontSize: isMobile ? 17 : 19, fontWeight: 600, marginBottom: 4, lineHeight: 1.3 }}>{s.name}</div>
         <div className="muted-2" style={{ fontSize: 11, fontFamily: "var(--font-mono)", letterSpacing: "0.04em", textTransform: "uppercase", marginBottom: 12 }}>{s.agency}</div>
@@ -262,7 +265,8 @@ export const SubsidyCard = ({ s, onClick, delay = 0, isSaved, onToggleWatchlist,
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export const SpecRow = ({ label, value, urgent }) => (
   <div className="between" style={{ alignItems: "baseline" }}>

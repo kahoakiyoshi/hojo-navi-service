@@ -1,31 +1,31 @@
 /* ===========================
-   HojoNavi — refined v2
-   editorial / financial document aesthetic
+   補助金の泉 — refined v3
+   editorial / aqua-blue document aesthetic
    =========================== */
 
 :root {
-  /* Background — paper, not "AI fintech white" */
-  --bg: #faf8f3;
+  /* Background — cool blue paper */
+  --bg: #f1f6fa;
   --bg-elev: #ffffff;
-  --bg-soft: #efeae0;
-  --bg-inset: #f4f1ea;
+  --bg-soft: #e1ecf3;
+  --bg-inset: #eaf2f8;
 
-  /* Ink — high-contrast editorial */
-  --ink: #16161a;
-  --ink-2: #2c2c33;
-  --ink-3: #5e5e68;
-  --ink-4: #92929e;
+  /* Ink — deep teal-blue, high contrast */
+  --ink: #0d2c3f;
+  --ink-2: #234657;
+  --ink-3: #527084;
+  --ink-4: #8aa4b4;
 
   /* Rules */
-  --line: #d9d4c5;
-  --line-strong: #b8b1a0;
-  --line-ink: #16161a;
+  --line: #cfe0ec;
+  --line-strong: #a6c4d8;
+  --line-ink: #0d2c3f;
 
-  /* Brand — single deep ink-navy */
-  --navy: #0f1c3f;
-  --navy-2: #1a2c5a;
-  --navy-soft: #e6e7ee;
-  --navy-ink: #0a1230;
+  /* Brand — aqua / water blue */
+  --navy: #1b7bb5;
+  --navy-2: #2691cf;
+  --navy-soft: #d8ecf7;
+  --navy-ink: #0a4366;
 
   /* Amber — reserved EXCLUSIVELY for 公募前 (pre-open) */
   --amber: #d99024;
@@ -33,11 +33,25 @@
   --amber-ink: #5a3b00;
 
   /* Status — minimal, monotone-friendly */
-  --emerald: #1e6e4a;
-  --emerald-soft: #d9e9df;
+  --emerald: #1c8a73;
+  --emerald-soft: #d4ece6;
 
-  --crimson: #a83838;
-  --crimson-soft: #f0dada;
+  --crimson: #c0556a;
+  --crimson-soft: #f4dde2;
+
+  /* Categorical palette — meaningful multi-hue, water-anchored */
+  --c-dx: #1b7bb5;       --c-dx-soft: #dcecf7;
+  --c-equip: #5a4fb3;    --c-equip-soft: #e6e2f5;
+  --c-sales: #1c8a73;    --c-sales-soft: #d4ece6;
+  --c-pivot: #b0567f;    --c-pivot-soft: #f4dfea;
+  --c-hr: #c77d3a;       --c-hr-soft: #f6e7d4;
+  --c-green: #3f9442;    --c-green-soft: #dcefdc;
+  --c-region: #2b9fb0;   --c-region-soft: #d6eef1;
+  --c-startup: #c79a2a;  --c-startup-soft: #f4eccf;
+
+  /* Warm break tone (breaks the all-blue field) */
+  --sand: #f3ede1;
+  --sand-line: #e2d6bf;
 
   /* Type — Mincho display, sans body, mono numerics */
   --font-display: "Shippori Mincho B1", "Noto Serif JP", "Yu Mincho", "ヒラギノ明朝 ProN", serif;
@@ -51,52 +65,136 @@
   --r-xl: 8px;
 
   --shadow-sm: none;
-  --shadow-md: 0 1px 2px rgba(15, 28, 63, 0.04);
-  --shadow-lg: 0 8px 24px rgba(15, 28, 63, 0.06);
+  --shadow-md: 0 1px 2px rgba(13, 44, 63, 0.05);
+  --shadow-lg: 0 8px 24px rgba(13, 44, 63, 0.08);
 
   --density-pad: 18px;
   --density-row: 14px;
 }
 
-/* Cream theme — warmer paper */
+/* Cream theme — warmer aqua */
 .theme-cream {
-  --bg: #f1e8d4;
-  --bg-elev: #faf3df;
-  --bg-soft: #e6dbc1;
-  --bg-inset: #ede2c9;
-  --line: #cabd9b;
-  --line-strong: #a89a78;
-  --navy-soft: #e8dec3;
+  --bg: #eaf4ee;
+  --bg-elev: #f7fbf8;
+  --bg-soft: #d6e9dd;
+  --bg-inset: #e2efe7;
+  --line: #c2ddcd;
+  --line-strong: #9bc4ac;
+  --navy-soft: #d4ece6;
 }
 
-/* Dark theme — deep ink */
+/* Dark theme — deep ocean */
 .theme-dark {
-  --bg: #0d111c;
-  --bg-elev: #14182a;
-  --bg-soft: #1b2038;
-  --bg-inset: #10142250;
-  --ink: #f1ede2;
-  --ink-2: #d2cec3;
-  --ink-3: #8e8a80;
-  --ink-4: #5c5950;
-  --line: #2a2f47;
-  --line-strong: #3d4366;
-  --line-ink: #f1ede2;
-  --navy: #c8d3ff;
-  --navy-2: #e0e7ff;
-  --navy-soft: #1b2240;
+  --bg: #07151f;
+  --bg-elev: #0e2230;
+  --bg-soft: #15303f;
+  --bg-inset: #0a1c28;
+  --ink: #e8f3f9;
+  --ink-2: #c4d7e1;
+  --ink-3: #7d97a6;
+  --ink-4: #51697a;
+  --line: #1c3848;
+  --line-strong: #2c5168;
+  --line-ink: #e8f3f9;
+  --navy: #5cbef0;
+  --navy-2: #8ad3f7;
+  --navy-soft: #122e40;
   --amber: #e6b964;
   --amber-soft: #3a2c0a;
   --amber-ink: #f0d49a;
-  --emerald: #6fc89c;
-  --emerald-soft: #102822;
-  --crimson: #d97a7a;
-  --crimson-soft: #2f1717;
+  --emerald: #5fcaae;
+  --emerald-soft: #0c2b25;
+  --crimson: #e08599;
+  --crimson-soft: #2f1620;
+  --c-dx: #5cbef0;      --c-dx-soft: #112c3e;
+  --c-equip: #a99cf0;   --c-equip-soft: #211d3a;
+  --c-sales: #5fcaae;   --c-sales-soft: #0c2b25;
+  --c-pivot: #e89ac0;   --c-pivot-soft: #321826;
+  --c-hr: #e8b074;      --c-hr-soft: #321f0d;
+  --c-green: #79c47b;   --c-green-soft: #122e13;
+  --c-region: #6cc6d4;  --c-region-soft: #0e2b30;
+  --c-startup: #e3c560; --c-startup-soft: #2e2608;
+  --sand: #182a33;
+  --sand-line: #28414c;
 }
 
 .density-compact {
   --density-pad: 12px;
   --density-row: 10px;
+}
+
+/* ===== Brand motif: 泉 / water ripples ===== */
+.ripples {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ripples svg { width: 100%; height: 100%; display: block; }
+.ripple-ring {
+  fill: none;
+  stroke: var(--navy);
+  stroke-width: 1.25;
+  opacity: 0;
+}
+@keyframes ripple-out {
+  0%   { r: 4px;   opacity: 0; stroke-width: 2.25px; }
+  12%  { opacity: 0.34; }
+  100% { r: 250px; opacity: 0; stroke-width: 0.5px; }
+}
+.ripple-live circle {
+  animation: ripple-out 7s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
+}
+.ripple-live circle:nth-child(1) { animation-delay: 0s; }
+.ripple-live circle:nth-child(2) { animation-delay: 1.4s; }
+.ripple-live circle:nth-child(3) { animation-delay: 2.8s; }
+.ripple-live circle:nth-child(4) { animation-delay: 4.2s; }
+.ripple-live circle:nth-child(5) { animation-delay: 5.6s; }
+
+/* the welling point — a soft breathing glow at the source */
+.spring-eye {
+  fill: var(--navy-2);
+  opacity: 0.5;
+  animation: spring-pulse 7s ease-in-out infinite;
+}
+@keyframes spring-pulse {
+  0%, 100% { r: 4px; opacity: 0.32; }
+  50%      { r: 6px; opacity: 0.6; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ripple-live circle { animation: none; opacity: 0.12; }
+  .ripple-live circle:nth-child(1) { r: 60px; }
+  .ripple-live circle:nth-child(2) { r: 120px; }
+  .ripple-live circle:nth-child(3) { r: 180px; }
+  .ripple-live circle:nth-child(4) { r: 240px; }
+  .ripple-live circle:nth-child(5) { r: 300px; }
+  .spring-eye { animation: none; }
+}
+
+/* Water-surface gradient wash */
+.water-wash {
+  background:
+    radial-gradient(130% 95% at 84% -8%, var(--navy-soft) 0%, transparent 52%),
+    radial-gradient(90% 70% at -5% 110%, var(--emerald-soft) 0%, transparent 50%);
+  position: relative;
+}
+/* a faint water line catching light along the foot of the hero */
+.water-wash::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--navy) 35%, var(--navy-2) 55%, transparent 100%);
+  opacity: 0.18;
+  pointer-events: none;
+}
+
+/* Category dot + tag */
+.cat-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
 }
 
 /* ============ Base ============ */
@@ -144,13 +242,24 @@ a { color: inherit; text-decoration: none; }
 .sb-mark {
   width: 28px; height: 28px;
   border-radius: 0;
-  background: var(--ink);
+  background: linear-gradient(155deg, var(--navy-2) 0%, var(--navy) 58%, #0d5683 100%);
   display: grid; place-items: center;
-  color: var(--bg-elev);
+  color: #ffffff;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 14px;
-  letter-spacing: -0.04em;
+  font-size: 16px;
+  letter-spacing: 0;
+  position: relative;
+  overflow: hidden;
+}
+/* a thin meniscus of light across the mark — water surface */
+.sb-mark::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 56%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0.7;
 }
 .sb-name {
   font-family: var(--font-display);
@@ -330,11 +439,11 @@ a { color: inherit; text-decoration: none; }
   white-space: nowrap;
 }
 .btn-primary {
-  background: var(--ink);
-  color: var(--bg-elev);
-  border-color: var(--ink);
+  background: var(--navy);
+  color: #ffffff;
+  border-color: var(--navy);
 }
-.btn-primary:hover { background: var(--navy); border-color: var(--navy); }
+.btn-primary:hover { background: var(--navy-2); border-color: var(--navy-2); }
 .btn-ghost {
   background: transparent;
   color: var(--ink-2);
@@ -447,6 +556,63 @@ a { color: inherit; text-decoration: none; }
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
   font-feature-settings: "ss01";
+}
+
+/* Oversized editorial stat figure */
+.statfig {
+  display: inline-flex;
+  align-items: baseline;
+  line-height: 0.86;
+  white-space: nowrap;
+}
+.statfig-num {
+  font-family: -apple-system, "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+.statfig-prefix {
+  font-family: -apple-system, "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin-right: 0.06em;
+  opacity: 0.72;
+}
+.statfig-approx {
+  font-family: -apple-system, "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+  font-weight: 500;
+  margin-right: 0.14em;
+  opacity: 0.45;
+}
+.statfig-suffix {
+  font-family: -apple-system, "Segoe UI", "Roboto", "Helvetica Neue", Arial, "Noto Sans JP", sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  margin-left: 0.26em;
+  color: var(--ink-3);
+  align-self: baseline;
+}
+/* Stat cell — number-forward, with a hairline accent tick */
+.statcell {
+  position: relative;
+  padding-top: 14px;
+}
+.statcell::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 22px; height: 2px;
+  background: var(--ink);
+}
+.statcell.is-accent::before { background: var(--navy); }
+.statcell.is-amber::before { background: var(--amber); }
+.statcell-label {
+  font-family: var(--font-mono);
+  font-size: 13.5px;
+  letter-spacing: 0.03em;
+  color: var(--ink-3);
+  margin-bottom: 18px;
 }
 
 /* Score bar — thinner */

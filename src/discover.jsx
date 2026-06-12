@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { MOCK_COMPANY, formatYen } from './data';
-import { StatusBadge } from './ui';
+import { StatusBadge, CategoryTag, catColor, Ripples, StatFigure } from './ui';
 import { functions } from './firebase';
 import { httpsCallable } from 'firebase/functions';
 
 // ====== USR-01: Landing Page ======
 export const Landing = ({ onStart, isMobile, onLogin, user, onGoToMyPage }) => {
   const [url, setUrl] = useState("");
+  const scrollToId = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let sc = el.parentElement;
+    while (sc && sc.scrollHeight <= sc.clientHeight + 4) sc = sc.parentElement;
+    if (!sc) sc = document.scrollingElement || document.documentElement;
+    const top = el.getBoundingClientRect().top - sc.getBoundingClientRect().top + sc.scrollTop - 16;
+    sc.scrollTo({ top, behavior: "smooth" });
+  };
   return (
     <div style={{ background: "var(--bg)" }}>
       {/* Top nav */}
@@ -16,9 +25,9 @@ export const Landing = ({ onStart, isMobile, onLogin, user, onGoToMyPage }) => {
         borderBottom: "1px solid var(--line)", background: "var(--bg-elev)"
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div className="sb-mark" style={{ width: 28, height: 28 }}>HJ</div>
-          <div style={{ fontWeight: 600, fontSize: 15, fontFamily: "var(--font-display)" }}>
-            HojoNavi <span style={{ color: "var(--ink-4)", fontFamily: "var(--font-mono)", fontSize: 9.5, letterSpacing: "0.15em", textTransform: "uppercase", marginLeft: 4 }}>BETA</span>
+          <div className="sb-mark" style={{ width: 28, height: 28 }}>泉</div>
+          <div style={{ fontWeight: 600, fontSize: 15, fontFamily: "var(--font-display)", whiteSpace: "nowrap" }}>
+            補助金の泉 <span style={{ color: "var(--ink-4)", fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.08em", marginLeft: 4, whiteSpace: "nowrap" }}>β版</span>
           </div>
         </div>
         {isMobile ? (
@@ -29,7 +38,7 @@ export const Landing = ({ onStart, isMobile, onLogin, user, onGoToMyPage }) => {
           )
         ) : (
           <div style={{ display: "flex", gap: 26, fontSize: 13, color: "var(--ink-2)", alignItems: "center" }}>
-            <a>機能</a><a>採択事例</a><a>専門家</a><a>料金</a>
+            <a onClick={() => scrollToId("lp-features")} style={{ cursor: "pointer" }}>機能</a><a onClick={() => scrollToId("lp-cases")} style={{ cursor: "pointer" }}>採択事例</a>
             {user ? (
               <button className="btn btn-ghost btn-sm" onClick={onGoToMyPage}>マイページ</button>
             ) : (
@@ -40,103 +49,135 @@ export const Landing = ({ onStart, isMobile, onLogin, user, onGoToMyPage }) => {
       </div>
 
       {/* Hero — editorial */}
-      <div style={{
+      <div className="water-wash" style={{
         padding: isMobile ? "44px 22px 36px" : "96px 56px 64px",
-        position: "relative"
+        position: "relative",
+        overflow: "hidden"
       }}>
+        {!isMobile && <Ripples live />}
+        <div style={{ position: "relative" }}>
         <div className="eyebrow" style={{ marginBottom: 24 }}>
-          中小企業庁 監修ロジック · 補助金インテリジェンス
+          中小企業庁の公募データをもとにした、補助金マッチングAI
         </div>
         <h1 className="display" style={{
-          fontSize: isMobile ? 36 : 68,
-          lineHeight: 1.18,
-          margin: "0 0 28px",
-          letterSpacing: "-0.02em",
-          fontWeight: 600,
-          maxWidth: 900
-        }}>
+            fontSize: isMobile ? 36 : 68,
+            lineHeight: 1.18,
+            margin: "0 0 28px",
+            letterSpacing: "-0.02em",
+            fontWeight: 600,
+            maxWidth: 900
+          }}>
           会社URLを入れるだけで、<br />
           使える補助金と、<br />
-          <span style={{ fontStyle: "italic", color: "var(--ink-3)" }}>次に来る制度</span>がわかる。
+          <span style={{ fontStyle: "italic", color: "var(--navy)" }}>次に来る制度</span>がわかる。
         </h1>
         <p style={{
-          fontSize: isMobile ? 14 : 16,
-          color: "var(--ink-2)",
-          lineHeight: 1.85,
-          margin: "0 0 36px",
-          maxWidth: 560
-        }}>
+            fontSize: isMobile ? 14 : 16,
+            color: "var(--ink-2)",
+            lineHeight: 1.85,
+            margin: "0 0 36px",
+            maxWidth: 560
+          }}>
           AIが業種・規模・事業内容を抽出し、約 2,400 件の補助金マスタからマッチング。<br />
-          公募開始の <em style={{ fontFamily: "var(--font-display)", fontStyle: "italic", borderBottom: "1px solid currentColor" }}>前</em> に通知が届くから、申請準備に十分な時間が取れます。
+          公募開始の <strong style={{ color: "var(--navy)", fontWeight: 600 }}>前</strong> に通知が届くから、申請準備に十分な時間が取れます。
         </p>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); onStart(url || "https://sample-works.co.jp"); }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: isMobile ? "1fr" : "1fr auto",
-            gap: 0,
-            maxWidth: 640,
-            border: "1px solid var(--line-strong)",
-            background: "var(--bg-elev)"
-          }}
-        >
+            onSubmit={(e) => {e.preventDefault();onStart(url || "https://sample-works.co.jp");}}
+            style={{
+              display: "grid",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr auto",
+              gap: 0,
+              maxWidth: 640,
+              border: "1px solid var(--line-strong)",
+              background: "var(--bg-elev)"
+            }}>
+            
           <div className="row" style={{ padding: "0 18px", gap: 12, borderRight: isMobile ? 0 : "1px solid var(--line)", borderBottom: isMobile ? "1px solid var(--line)" : 0 }}>
             <span className="eyebrow" style={{ flexShrink: 0 }}>URL</span>
             <input
-              className="input"
-              style={{ border: 0, padding: "16px 0", background: "transparent" }}
-              placeholder="https://your-company.co.jp"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-            />
+                className="input"
+                style={{ border: 0, padding: "16px 0", background: "transparent" }}
+                placeholder="https://your-company.co.jp"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)} />
+              
           </div>
           <button className="btn btn-primary" type="submit" style={{
-            padding: "16px 26px",
-            borderRadius: 0,
-            fontSize: 14
-          }}>
+              padding: "16px 26px",
+              borderRadius: 0,
+              fontSize: 14
+            }}>
             無料で診断する →
           </button>
         </form>
-        <div className="row" style={{ marginTop: 16, gap: 26, color: "var(--ink-3)", fontSize: 11, fontFamily: "var(--font-mono)", letterSpacing: "0.06em", textTransform: "uppercase" }}>
-          <span>会員登録不要</span>
-          <span>所要 3 分</span>
-          <span>株式会社CrownStrategy JV 監修</span>
+        <p style={{ marginTop: 18, marginBottom: 0, color: "var(--ink-3)", fontSize: 13, lineHeight: 1.8, maxWidth: 540 }}>
+          会員登録は不要です。会社URLを入力するだけで、およそ3分で診断が完了します。
+        </p>
         </div>
       </div>
 
-      {/* Numerical masthead */}
-      {!isMobile && (
-        <div style={{
-          padding: "32px 56px",
-          borderTop: "1px solid var(--line-ink)",
-          borderBottom: "1px solid var(--line-ink)",
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: 0
-        }}>
-          {[
-            { n: "2,418", l: "登録補助金マスタ", s: "件" },
-            { n: "¥1.5", l: "国の年間予算規模", s: "兆円 / 年" },
-            { n: "287", l: "監修者の採択実績", s: "件" },
-            { n: "< 10", l: "中小企業の活用率", s: "% 推計" },
-          ].map((s, i) => (
-            <div key={i} style={{ paddingLeft: i ? 28 : 0, borderLeft: i ? "1px solid var(--line)" : 0 }}>
-              <div className="eyebrow" style={{ marginBottom: 10 }}>{s.l}</div>
-              <div className="num" style={{ fontSize: 42, fontWeight: 600, letterSpacing: "-0.03em", lineHeight: 1, color: "var(--ink)" }}>
-                {s.n}
-              </div>
-              <div className="muted-2" style={{ fontSize: 11, marginTop: 8, fontFamily: "var(--font-mono)", letterSpacing: "0.04em" }}>
-                {s.s}
-              </div>
+      {/* Hero image band */}
+      {!isMobile &&
+      <div style={{ padding: "0 56px 8px", display: "grid", gridTemplateColumns: "1.6fr 1fr", gap: 0, borderTop: "1px solid var(--line)" }}>
+          <div style={{ width: "100%", height: "320px", display: "block", background: "var(--bg-inset)" }}></div>
+          <div className="water-wash" style={{ padding: "40px 0 40px 40px", display: "flex", flexDirection: "column", justifyContent: "center", borderLeft: "1px solid var(--line)" }}>
+            <div className="eyebrow eyebrow-amber" style={{ marginBottom: 14 }}>公募前アラート</div>
+            <div className="serif" style={{ fontSize: 24, fontWeight: 600, lineHeight: 1.5, letterSpacing: "-0.01em" }}>
+              「これから来る」制度を、<br />公募の<strong style={{ color: "var(--navy)", fontWeight: 600 }}>前</strong>に。
             </div>
-          ))}
+            <p className="muted sm" style={{ marginTop: 14, lineHeight: 1.75, maxWidth: 280 }}>
+              パブコメ・予算動向から開始日を予測し、準備に必要な時間を先取りします。
+            </p>
+          </div>
         </div>
-      )}
+      }
+
+      {/* Numerical masthead */}
+      {!isMobile &&
+      <div style={{
+        padding: "44px 56px",
+        borderTop: "1px solid var(--line-ink)",
+        borderBottom: "1px solid var(--line-ink)",
+        background: "var(--bg-soft)"
+      }}>
+          <div className="row" style={{ gap: 14, marginBottom: 34, alignItems: "center" }}>
+            <span className="eyebrow">規模 — By the Numbers</span>
+            <span style={{ flex: 1, height: 1, background: "var(--line)" }} />
+            <span className="muted-2" style={{ fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.08em" }}>
+              2026.05 時点
+            </span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 0 }}>
+            {[
+          { fig: { to: 2418, suffix: "件" }, l: "登録補助金マスタ" },
+          { fig: { prefix: "¥", to: 1.5, decimals: 1, suffix: "兆円 / 年" }, l: "国の年間予算規模" },
+          { fig: { to: 287, suffix: "件" }, l: "監修者の採択実績" },
+          { fig: { to: 10, suffix: "% 未満" }, l: "中小企業の活用率" }].
+          map((s, i) =>
+          <div
+            key={i}
+            style={{
+              paddingTop: 4,
+              paddingLeft: i ? 32 : 0,
+              borderLeft: i ? "1px solid var(--line)" : 0
+            }}>
+            
+                <div className="statcell-label" style={{ marginBottom: 12 }}>{s.l}</div>
+                <StatFigure
+              {...s.fig}
+              size={32}
+              delay={i * 80}
+              accent="var(--ink)" />
+            
+              </div>
+          )}
+          </div>
+        </div>
+      }
 
       {/* 4 pillars — editorial */}
-      <div style={{ padding: isMobile ? "32px 22px" : "72px 56px 56px" }}>
+      <div id="lp-features" style={{ padding: isMobile ? "32px 22px" : "72px 56px 56px" }}>
         <div className="between" style={{ marginBottom: 32, alignItems: "flex-end" }}>
           <div>
             <div className="eyebrow" style={{ marginBottom: 10 }}>4本柱 — Four Pillars</div>
@@ -153,64 +194,74 @@ export const Landing = ({ onStart, isMobile, onLogin, user, onGoToMyPage }) => {
           borderBottom: "1px solid var(--line)"
         }}>
           {[
-            { idx: "01", t: "発見コスト削減", d: "会社URL1つで業種・規模・事業内容を抽出。約 2,400 件の補助金から自動マッチング。" },
-            { idx: "02", t: "時間先回り", d: "パブコメ・予算動向から「これから来る」制度を予測し、開始日見込みを通知。" },
-            { idx: "03", t: "判断支援", d: "採択スコア・採択率・類似採択事例・落選事例を根拠付きで提示。" },
-            { idx: "04", t: "専門家連携", d: "秋吉氏監修の専門家による初回 30 分無料相談。書類準備からサポート。" },
-          ].map((p, i) => (
-            <div key={i} style={{
-              padding: "28px 24px 28px 0",
-              paddingLeft: i ? 28 : 0,
-              borderLeft: i ? "1px solid var(--line)" : 0
-            }}>
-              <div className="num" style={{ fontSize: 11, color: "var(--ink-4)", letterSpacing: "0.1em", marginBottom: 12 }}>
+          { idx: "01", t: "発見コスト削減", d: "会社URL1つで業種・規模・事業内容を抽出。約 2,400 件の補助金から自動マッチング。", c: "var(--c-dx)" },
+          { idx: "02", t: "時間先回り", d: "パブコメ・予算動向から「これから来る」制度を予測し、開始日見込みを通知。", c: "var(--amber)" },
+          { idx: "03", t: "判断支援", d: "採択スコア・採択率・類似採択事例・落選事例を根拠付きで提示。", c: "var(--c-sales)" },
+          { idx: "04", t: "専門家連携", d: "秋吉氏監修の専門家による初回 30 分無料相談。書類準備からサポート。", c: "var(--c-pivot)" }].
+          map((p, i) =>
+          <div key={i} style={{
+            padding: "28px 24px 28px 0",
+            paddingLeft: i ? 28 : 0,
+            borderLeft: i ? "1px solid var(--line)" : 0,
+            borderTop: `2px solid ${p.c}`,
+            marginTop: -1
+          }}>
+              <div className="num" style={{ fontSize: 11, color: p.c, letterSpacing: "0.1em", marginBottom: 12, fontWeight: 600 }}>
                 — {p.idx}
               </div>
               <div className="display" style={{ fontSize: 18, fontWeight: 600, marginBottom: 12 }}>{p.t}</div>
               <div style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.75 }}>{p.d}</div>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
       {/* Preview block — typographic */}
-      {!isMobile && (
-        <div style={{ padding: "16px 56px 80px" }}>
+      {!isMobile &&
+      <div id="lp-cases" style={{ padding: "16px 56px 80px" }}>
           <div className="between" style={{ marginBottom: 22, alignItems: "flex-end" }}>
             <div>
               <div className="eyebrow" style={{ marginBottom: 10 }}>サンプル診断結果</div>
               <h2 className="display" style={{ fontSize: 26, margin: 0, fontWeight: 600 }}>
-                <em style={{ fontStyle: "italic", color: "var(--ink-3)" }}>株式会社サンプルワークス</em> の場合
+                <em style={{ fontStyle: "normal", color: "var(--ink-3)" }}>A社</em> の場合
               </h2>
             </div>
-            <span className="eyebrow">SaaS · 12 名 · 東京都</span>
+            <span className="eyebrow">ソフトウェア業 · 従業員 12 名 · 東京都</span>
           </div>
           <div style={{ borderTop: "1px solid var(--line-ink)" }}>
             {[
-              { s: 92, n: "IT導入補助金 2026", a: "経済産業省", st: "open" },
-              { s: 88, n: "新事業進出補助金 第1回", a: "経済産業省", st: "pre" },
-              { s: 86, n: "ものづくり補助金 第19次", a: "中小企業庁", st: "open" },
-            ].map((r, i) => (
+          { s: 92, n: "IT導入補助金 2026", a: "経済産業省", st: "open", cat: "DX・IT" },
+          { s: 88, n: "新事業進出補助金 第1回", a: "経済産業省", st: "pre", cat: "事業転換・再構築" },
+          { s: 86, n: "ものづくり補助金 第19次", a: "中小企業庁", st: "open", cat: "設備投資・新商品開発" },
+          { s: 81, n: "小規模事業者持続化補助金 第15回", a: "中小企業庁", st: "open", cat: "販路開拓" },
+          { s: 76, n: "省エネ設備導入支援補助金 2026", a: "環境省", st: "pre", cat: "脱炭素・省エネ" }].
+          map((r, i) => {
+            const cc = catColor(r.cat);
+            return (
               <div key={i} style={{
                 display: "grid",
                 gridTemplateColumns: "80px 1fr auto auto",
                 gap: 28,
-                padding: "22px 0",
+                padding: "22px 0 22px 18px",
                 borderBottom: "1px solid var(--line)",
+                borderLeft: `3px solid ${cc.fg}`,
                 alignItems: "center"
               }}>
-                <div className="num" style={{ fontSize: 36, fontWeight: 600, letterSpacing: "-0.04em", lineHeight: 1 }}>{r.s}</div>
+                <div className="num" style={{ fontSize: 36, fontWeight: 600, letterSpacing: "-0.04em", lineHeight: 1, color: cc.fg }}>{r.s}</div>
                 <div>
-                  <div className="serif" style={{ fontSize: 17, fontWeight: 600, marginBottom: 4 }}>{r.n}</div>
-                  <div className="muted-2 num" style={{ fontSize: 11, letterSpacing: "0.04em", textTransform: "uppercase" }}>{r.a}</div>
+                  <div className="serif" style={{ fontSize: 17, fontWeight: 600, marginBottom: 6 }}>{r.n}</div>
+                  <div className="row" style={{ gap: 8 }}>
+                    <CategoryTag category={r.cat} />
+                  </div>
                 </div>
                 <StatusBadge status={r.st} />
                 <span className="muted" style={{ fontSize: 12 }}>→</span>
-              </div>
-            ))}
+              </div>);
+
+          })}
           </div>
         </div>
-      )}
+      }
 
       {/* Footer */}
       <div style={{
@@ -221,10 +272,9 @@ export const Landing = ({ onStart, isMobile, onLogin, user, onGoToMyPage }) => {
         fontFamily: "var(--font-mono)",
         letterSpacing: "0.04em"
       }}>
-        © 2026 HojoNavi · 株式会社CrownStrategy · 本サービスは情報提供を目的とし、補助金の採択を保証するものではありません
+        © 2026 補助金の泉 · 秋吉×岡田 JV · 本サービスは情報提供を目的とし、補助金の採択を保証するものではありません
       </div>
-    </div>
-  );
+    </div>);
 };
 
 // ====== USR-02: URL Analysis ======
@@ -415,9 +465,9 @@ export const Analyze = ({ url, onDone, isMobile }) => {
               </div>
               <div className="num muted" style={{ fontSize: 12, letterSpacing: "0.02em" }}>{c.url}</div>
             </div>
-            {/* <button className="btn btn-ghost btn-sm" onClick={() => setEditing(!editing)}>
+            <button className="btn btn-ghost btn-sm" onClick={() => setEditing(!editing)}>
               {editing ? "完了" : "修正する"}
-            </button> */}
+            </button>
           </div>
 
           <div style={{
@@ -620,7 +670,7 @@ export const Diagnose = ({ company, onDone, isMobile }) => {
                 }}>
                   {preexisting && <span style={{ width: 8, height: 8, background: "var(--bg-elev)" }} />}
                 </div>
-                <span className="sm">過去 5 年以内に補助金採択歴がある（再申請時の優遇／制限 of 判定に使用）</span>
+                <span className="sm">過去 5 年以内に補助金採択歴がある（再申請時の優遇／制限の判定に使用）</span>
               </label>
             </div>
           </div>

@@ -1,0 +1,204 @@
+--- src/ui.jsx	2026-06-10 14:32:53
++++ 補助金検索システム (2)/ui.jsx	2026-06-11 14:26:11
+@@ -1,7 +1,10 @@
+-import React from 'react';
++// =========================
++// Shared UI primitives + icons
++// =========================
++const { useState, useEffect, useRef, useMemo, useCallback, createContext, useContext } = React;
+ 
+ // ------- Icons (minimal stroke set, hand-crafted) -------
+-export const Ico = ({ name, size = 16, className = "" }) => {
++const Ico = ({ name, size = 16, className = "" }) => {
+   const sw = 1.7;
+   const map = {
+     search: <><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></>,
+@@ -77,8 +80,69 @@
+   );
+ };
+ 
++// ------- Category color system -------
++const CATEGORY_COLORS = {
++  "DX・IT":               { fg: "var(--c-dx)",      soft: "var(--c-dx-soft)" },
++  "設備投資・新商品開発":  { fg: "var(--c-equip)",   soft: "var(--c-equip-soft)" },
++  "販路開拓":             { fg: "var(--c-sales)",   soft: "var(--c-sales-soft)" },
++  "事業転換・再構築":      { fg: "var(--c-pivot)",   soft: "var(--c-pivot-soft)" },
++  "雇用・人材":           { fg: "var(--c-hr)",      soft: "var(--c-hr-soft)" },
++  "脱炭素・省エネ":        { fg: "var(--c-green)",   soft: "var(--c-green-soft)" },
++  "地域・DX":             { fg: "var(--c-region)",  soft: "var(--c-region-soft)" },
++  "起業・創業":           { fg: "var(--c-startup)", soft: "var(--c-startup-soft)" },
++};
++const catColor = (category) => CATEGORY_COLORS[category] || { fg: "var(--navy)", soft: "var(--navy-soft)" };
++
++const CategoryTag = ({ category, size = "sm" }) => {
++  const c = catColor(category);
++  return (
++    <span style={{
++      display: "inline-flex", alignItems: "center", gap: 6,
++      padding: size === "sm" ? "3px 9px" : "4px 11px",
++      background: c.soft,
++      color: c.fg,
++      fontSize: size === "sm" ? 10 : 11,
++      fontFamily: "var(--font-mono)",
++      fontWeight: 600,
++      letterSpacing: "0.04em",
++      borderRadius: 2,
++      whiteSpace: "nowrap",
++    }}>
++      <span className="cat-dot" style={{ background: c.fg }} />
++      {category}
++    </span>
++  );
++};
++
++// ------- Water ripple motif — a spring welling up (泉) -------
++const Ripples = ({ live = false }) => (
++  <div className="ripples" aria-hidden="true">
++    <svg viewBox="0 0 600 400" preserveAspectRatio="xMidYMid slice">
++      <defs>
++        <radialGradient id="spring-source" cx="50%" cy="50%" r="50%">
++          <stop offset="0%" stopColor="var(--navy-2)" stopOpacity="0.32" />
++          <stop offset="40%" stopColor="var(--navy)" stopOpacity="0.12" />
++          <stop offset="100%" stopColor="var(--navy)" stopOpacity="0" />
++        </radialGradient>
++      </defs>
++      {/* light pooling at the spring's source */}
++      <circle cx="505" cy="92" r="150" fill="url(#spring-source)" />
++      {/* continuously welling rings */}
++      <g className={live ? "ripple-live" : ""} transform="translate(505 92)">
++        <circle className="ripple-ring" cx="0" cy="0" r="6" />
++        <circle className="ripple-ring" cx="0" cy="0" r="6" />
++        <circle className="ripple-ring" cx="0" cy="0" r="6" />
++        <circle className="ripple-ring" cx="0" cy="0" r="6" />
++        <circle className="ripple-ring" cx="0" cy="0" r="6" />
++      </g>
++      {/* the welling point itself */}
++      <circle className="spring-eye" cx="505" cy="92" r="5" />
++    </svg>
++  </div>
++);
++
+ // ------- Status badge — flat mono caps -------
+-export const StatusBadge = ({ status }) => {
++const StatusBadge = ({ status }) => {
+   if (status === "open")   return <span className="badge badge-open">公募中</span>;
+   if (status === "pre")    return <span className="badge badge-pre">公募前</span>;
+   if (status === "closed") return <span className="badge badge-closed">終了</span>;
+@@ -86,7 +150,7 @@
+ };
+ 
+ // ------- Score: editorial big-number, no ring -------
+-export const ScoreRing = ({ score, size = 56 }) => {
++const ScoreRing = ({ score, size = 56 }) => {
+   // Editorial: large numeric, mono SCORE label, no decorative ring
+   const big = size >= 60 ? 32 : size >= 42 ? 22 : 18;
+   const sub = size >= 60 ? 10 : 9;
+@@ -119,7 +183,7 @@
+ };
+ 
+ // ------- Channel — mono caps -------
+-export const ChannelIco = ({ channel }) => {
++const ChannelIco = ({ channel }) => {
+   const label = channel === "line" ? "LINE" : channel === "email" ? "Email" : "App";
+   return (
+     <span className="badge badge-neutral" style={{ borderColor: "var(--line-strong)" }}>{label}</span>
+@@ -127,7 +191,7 @@
+ };
+ 
+ // ------- Empty placeholder -------
+-export const Placeholder = ({ label, h = 120 }) => (
++const Placeholder = ({ label, h = 120 }) => (
+   <div style={{
+     height: h,
+     border: "1px dashed var(--line-strong)",
+@@ -143,7 +207,7 @@
+ );
+ 
+ // ------- Avatar -------
+-export const Avatar = ({ initials, color = "var(--navy)", size = 40 }) => (
++const Avatar = ({ initials, color = "var(--navy)", size = 40 }) => (
+   <div style={{
+     width: size, height: size,
+     borderRadius: "50%",
+@@ -159,7 +223,7 @@
+ );
+ 
+ // ------- Mobile status bar -------
+-export const MobileStatus = ({ time = "9:41", dark = false }) => (
++const MobileStatus = ({ time = "9:41", dark = false }) => (
+   <div className="statusbar" style={{ color: dark ? "#fff" : "var(--ink)" }}>
+     <span>{time}</span>
+     <div className="statusbar-icons">
+@@ -179,10 +243,10 @@
+ );
+ 
+ // ------- Bottom nav for mobile -------
+-export const BotNav = ({ active, onChange }) => {
++const BotNav = ({ active, onChange }) => {
+   const items = [
+     { id: "USR-07", l: "ホーム", i: "home" },
+-    { id: "USR-04", l: "検索", i: "search" },
++    { id: "USR-06", l: "検索", i: "search" },
+     { id: "USR-10", l: "保存", i: "bookmarkF" },
+     { id: "USR-09", l: "通知", i: "bell" },
+     { id: "USR-11", l: "相談", i: "chat" },
+@@ -198,3 +262,59 @@
+     </div>
+   );
+ };
++
++// ------- Count-up numeric — animates on mount -------
++const CountUp = ({ to, decimals = 0, dur = 1500, delay = 0, format = true, className, style }) => {
++  const reduce = typeof matchMedia !== "undefined" && matchMedia("(prefers-reduced-motion: reduce)").matches;
++  const [val, setVal] = useState(reduce ? to : 0);
++  useEffect(() => {
++    if (reduce) { setVal(to); return; }
++    let raf;
++    const startT = performance.now() + delay;
++    const tick = (now) => {
++      if (now < startT) { raf = requestAnimationFrame(tick); return; }
++      const p = Math.min(1, (now - startT) / dur);
++      // easeOutExpo — fast start, long graceful settle
++      const eased = p >= 1 ? 1 : 1 - Math.pow(2, -10 * p);
++      setVal(to * eased);
++      if (p < 1) raf = requestAnimationFrame(tick);
++      else setVal(to);
++    };
++    raf = requestAnimationFrame(tick);
++    // Fallback: guarantee the final value even if rAF is throttled (hidden tab)
++    const guard = setTimeout(() => setVal(v => (v >= to ? v : to)), delay + dur + 120);
++    return () => { cancelAnimationFrame(raf); clearTimeout(guard); };
++  }, [to]);
++  const display = format
++    ? val.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
++    : val.toFixed(decimals);
++  return <span className={className} style={style}>{display}</span>;
++};
++
++// ------- StatFigure — oversized editorial figure w/ hanging affixes -------
++const StatFigure = ({
++  prefix, to, decimals = 0, suffix, approx = false,
++  size = 72, accent, delay = 0, format = true,
++  affixSize, prefixSize
++}) => {
++  const af = affixSize || Math.max(12, Math.round(size * 0.2));
++  const pf = prefixSize || Math.max(18, Math.round(size * 0.42));
++  return (
++    <div className="statfig" style={{ color: accent || "var(--ink)" }}>
++      {approx && <span className="statfig-approx" style={{ fontSize: af }}>≈</span>}
++      {prefix && <span className="statfig-prefix" style={{ fontSize: pf }}>{prefix}</span>}
++      <CountUp
++        to={to} decimals={decimals} delay={delay} format={format}
++        className="num statfig-num"
++        style={{ fontSize: size }}
++      />
++      {suffix && <span className="statfig-suffix" style={{ fontSize: af }}>{suffix}</span>}
++    </div>
++  );
++};
++
++// Export to window
++Object.assign(window, {
++  Ico, StatusBadge, ScoreRing, ChannelIco, Placeholder, Avatar, MobileStatus, BotNav,
++  CategoryTag, catColor, CATEGORY_COLORS, Ripples, CountUp, StatFigure
++});

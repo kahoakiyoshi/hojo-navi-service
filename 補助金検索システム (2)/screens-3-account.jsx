@@ -30,33 +30,37 @@ const MyPage = ({ onOpenDetail, onNav, isMobile }) => {
 
       {/* Stats row */}
       <div style={{
-        padding: isMobile ? "20px 22px" : "28px 56px",
+        padding: isMobile ? "24px 22px" : "34px 56px",
         borderBottom: "1px solid var(--line)",
         display: "grid",
         gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",
-        gap: 0,
+        gap: isMobile ? "26px 0" : 0,
       }}>
         {[
-          { l: "マッチ補助金", v: "10", u: "件", to: "USR-04" },
-          { l: "ウォッチ中", v: "04", u: "件", to: "USR-10" },
-          { l: "未読アラート", v: String(unread).padStart(2, "0"), u: "件", to: "USR-09", hot: true },
-          { l: "申請準備中", v: "01", u: "件", to: "USR-07" },
+          { l: "マッチ補助金", v: 10, u: "件", to: "USR-04" },
+          { l: "ウォッチ中", v: 4, u: "件", to: "USR-10" },
+          { l: "未読アラート", v: unread, u: "件", to: "USR-09", hot: true },
+          { l: "申請準備中", v: 1, u: "件", to: "USR-07" },
         ].map((s, i) => (
-          <div key={i} onClick={() => onNav(s.to)} style={{
-            cursor: "pointer",
-            paddingLeft: i ? 24 : 0,
-            borderLeft: i ? "1px solid var(--line)" : 0
-          }}>
-            <div className="eyebrow" style={{ marginBottom: 10, color: s.hot ? "var(--amber)" : undefined }}>{s.l}</div>
-            <div className="num" style={{
-              fontSize: isMobile ? 32 : 42,
-              fontWeight: 600,
-              letterSpacing: "-0.04em",
-              lineHeight: 1,
-              color: s.hot ? "var(--amber)" : "var(--ink)"
-            }}>
-              {s.v}<span style={{ fontSize: 12, color: "var(--ink-4)", marginLeft: 4, fontWeight: 500, letterSpacing: 0 }}>{s.u}</span>
-            </div>
+          <div
+            key={i}
+            onClick={() => onNav(s.to)}
+            className={"statcell" + (s.hot ? " is-amber" : "")}
+            style={{
+              cursor: "pointer",
+              paddingLeft: !isMobile && i ? 28 : 0,
+              paddingRight: isMobile ? 18 : 0,
+              borderLeft: !isMobile && i ? "1px solid var(--line)" : 0
+            }}
+          >
+            <div className="statcell-label" style={{ color: s.hot ? "var(--amber)" : undefined, marginBottom: 14 }}>{s.l}</div>
+            <StatFigure
+              to={s.v}
+              suffix={s.u}
+              size={isMobile ? 36 : 40}
+              delay={i * 90}
+              accent={s.hot ? "var(--amber)" : "var(--ink)"}
+            />
           </div>
         ))}
       </div>
@@ -99,14 +103,12 @@ const MyPage = ({ onOpenDetail, onNav, isMobile }) => {
                   display: "grid", gridTemplateColumns: "60px 1fr auto", gap: 18, alignItems: "center",
                   cursor: "pointer"
                 }} onClick={() => onOpenDetail(s.id)}>
-                  <div className="num" style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.04em", lineHeight: 1 }}>{s.score}</div>
+                  <div className="num" style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.04em", lineHeight: 1, color: catColor(s.category).fg }}>{s.score}</div>
                   <div style={{ minWidth: 0 }}>
-                    <div className="serif" style={{ fontSize: 15, fontWeight: 600, marginBottom: 4 }}>{s.name}</div>
+                    <div className="serif" style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>{s.name}</div>
                     <div className="row" style={{ gap: 8 }}>
                       <StatusBadge status={s.status} />
-                      <span className="muted-2 num" style={{ fontSize: 11 }}>
-                        {s.status === "pre" ? `${s.preOpenInDays} 日後` : s.daysLeft > 0 ? `あと ${s.daysLeft} 日` : "終了"}
-                      </span>
+                      <CategoryTag category={s.category} />
                     </div>
                   </div>
                   <span className="muted">→</span>
@@ -350,7 +352,7 @@ const Alerts = ({ onOpenDetail, isMobile }) => {
         {items.map((a, i) => {
           const typeColor =
             a.type === "pre_open" ? "var(--amber)" :
-              a.type === "deadline_near" ? "var(--crimson)" : "var(--ink)";
+            a.type === "deadline_near" ? "var(--crimson)" : "var(--ink)";
           return (
             <div key={a.id} style={{
               padding: "20px 0",
@@ -434,7 +436,7 @@ const Expert = ({ isMobile }) => {
             専門家相談
           </h1>
           <div className="muted sm" style={{ marginTop: 8 }}>
-            株式会社CrownStrategy JV 監修ネットワーク · <strong style={{ color: "var(--emerald)" }}>初回 30 分 無料</strong>
+            秋吉×岡田 JV 監修ネットワーク · <strong style={{ color: "var(--emerald)" }}>初回 30 分 無料</strong>
           </div>
         </div>
         <div className="cv-toggle" style={{ display: isMobile ? "none" : "inline-flex" }}>
@@ -456,8 +458,15 @@ const Expert = ({ isMobile }) => {
                 transition: "padding 120ms, background 120ms",
               }} onClick={() => setPicked(e.id)}>
                 <div style={{ display: "grid", gridTemplateColumns: "auto 1fr", gap: 20, alignItems: "flex-start" }}>
-                  <div className="num muted-2" style={{ fontSize: 11, paddingTop: 4, minWidth: 28 }}>
-                    {String(i + 1).padStart(2, "0")}
+                  <div className="col" style={{ gap: 8, alignItems: "center" }}>
+                    <image-slot
+                      id={`expert-${e.id}`}
+                      src={window.STOCK?.experts?.[e.id]}
+                      style={{ width: "64px", height: "64px", display: "block" }}
+                      shape="circle"
+                      placeholder="顔写真"
+                    ></image-slot>
+                    <span className="num muted-2" style={{ fontSize: 10 }}>{String(i + 1).padStart(2, "0")}</span>
                   </div>
                   <div>
                     <div className="between" style={{ marginBottom: 8 }}>
@@ -611,8 +620,8 @@ const Auth = ({ mode, onSwitch, onDone, isMobile }) => {
         }}>
           <div>
             <div className="row" style={{ gap: 10, marginBottom: 36 }}>
-              <div className="sb-mark">HJ</div>
-              <div style={{ fontWeight: 600, fontFamily: "var(--font-display)", fontSize: 16 }}>HojoNavi</div>
+              <div className="sb-mark">泉</div>
+              <div style={{ fontWeight: 600, fontFamily: "var(--font-display)", fontSize: 16 }}>補助金の泉</div>
             </div>
             <div className="eyebrow" style={{ marginBottom: 18 }}>
               {isLogin ? "Sign In" : "New Account"}
@@ -643,8 +652,8 @@ const Auth = ({ mode, onSwitch, onDone, isMobile }) => {
         <div style={{ width: "100%", maxWidth: 360, margin: "0 auto" }}>
           {isMobile && (
             <div className="row" style={{ gap: 10, marginBottom: 36 }}>
-              <div className="sb-mark">HJ</div>
-              <div style={{ fontWeight: 600, fontFamily: "var(--font-display)", fontSize: 16 }}>HojoNavi</div>
+              <div className="sb-mark">泉</div>
+              <div style={{ fontWeight: 600, fontFamily: "var(--font-display)", fontSize: 16 }}>補助金の泉</div>
             </div>
           )}
           <h2 className="display" style={{ fontSize: 28, fontWeight: 600, margin: "0 0 8px", letterSpacing: "-0.015em" }}>
@@ -732,7 +741,7 @@ const AIChatPage = ({ isMobile }) => {
     setLoading(true);
 
     try {
-      const ctx = `あなたは日本の中小企業向け補助金AIアシスタント「HojoNavi」です。
+      const ctx = `あなたは日本の中小企業向け補助金AIアシスタント「補助金の泉」です。
 ユーザー企業情報:
 - 会社名: 株式会社サンプルワークス
 - 業種: ソフトウェア業 (Web/SaaS)
@@ -851,7 +860,7 @@ const Admin = () => {
     <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", minHeight: 760, background: "var(--bg)" }}>
       <aside style={{ background: "var(--bg-elev)", borderRight: "1px solid var(--line-ink)", padding: "22px 14px" }}>
         <div className="row" style={{ gap: 10, marginBottom: 32 }}>
-          <div className="sb-mark">HJ</div>
+          <div className="sb-mark">泉</div>
           <div style={{ fontSize: 13, fontWeight: 600, fontFamily: "var(--font-display)" }}>
             管理コンソール
             <div className="eyebrow" style={{ marginTop: 4, fontSize: 9 }}>Admin v0.4</div>

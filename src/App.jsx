@@ -161,7 +161,7 @@ export default function App() {
         color: "var(--ink-3)"
       }}>
         <div style={{ textAlign: "center" }}>
-          <div className="sb-mark" style={{ width: 42, height: 42, fontSize: 18, margin: "0 auto 16px" }}>HJ</div>
+          <div className="sb-mark" style={{ width: 42, height: 42, fontSize: 18, margin: "0 auto 16px" }}>泉</div>
           <div className="eyebrow pulse" style={{ marginTop: 12 }}>読み込み中...</div>
         </div>
       </div>
@@ -229,9 +229,9 @@ export default function App() {
           flexShrink: 0
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div className="sb-mark" style={{ width: 24, height: 24, fontSize: 11, lineHeight: "24px" }}>HJ</div>
-            <div style={{ fontWeight: 600, fontSize: 15, fontFamily: "var(--font-display)" }}>
-              HojoNavi
+            <div className="sb-mark" style={{ width: 24, height: 24, fontSize: 11, lineHeight: "24px" }}>泉</div>
+            <div style={{ fontWeight: 600, fontSize: 15, fontFamily: "var(--font-display)", whiteSpace: "nowrap" }}>
+              補助金の泉 <span style={{ color: "var(--ink-4)", fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.08em", marginLeft: 4, whiteSpace: "nowrap" }}>β版</span>
             </div>
           </div>
           <button className="btn btn-ghost btn-sm" style={{ padding: 0, borderRadius: "50%" }} onClick={() => navigate(role === 'admin' ? "/admin" : "/mypage")}>
@@ -258,9 +258,9 @@ export default function App() {
           flexShrink: 0
         }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div className="sb-mark" style={{ width: 28, height: 28 }}>HJ</div>
-            <div style={{ fontWeight: 600, fontSize: 15, fontFamily: "var(--font-display)" }}>
-              HojoNavi
+            <div className="sb-mark" style={{ width: 28, height: 28 }}>泉</div>
+            <div style={{ fontWeight: 600, fontSize: 15, fontFamily: "var(--font-display)", whiteSpace: "nowrap" }}>
+              補助金の泉 <span style={{ color: "var(--ink-4)", fontFamily: "var(--font-mono)", fontSize: 10.5, letterSpacing: "0.08em", marginLeft: 4, whiteSpace: "nowrap" }}>β版</span>
             </div>
           </div>
           

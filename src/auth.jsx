@@ -63,8 +63,8 @@ export const Auth = ({ mode, onSwitch, onDone, isMobile, onBack }) => {
         }}>
           <div>
             <div className="row" style={{ gap: 10, marginBottom: 36 }}>
-              <div className="sb-mark">HJ</div>
-              <div style={{ fontWeight: 600, fontFamily: "var(--font-display)", fontSize: 16 }}>HojoNavi</div>
+              <div className="sb-mark">泉</div>
+              <div style={{ fontWeight: 600, fontFamily: "var(--font-display)", fontSize: 16 }}>補助金の泉</div>
             </div>
             <div className="eyebrow" style={{ marginBottom: 18 }}>
               {isLogin ? "Sign In" : "New Account"}
@@ -102,8 +102,8 @@ export const Auth = ({ mode, onSwitch, onDone, isMobile, onBack }) => {
           )}
           {isMobile && (
             <div className="row" style={{ gap: 10, marginBottom: 36 }}>
-              <div className="sb-mark">HJ</div>
-              <div style={{ fontWeight: 600, fontFamily: "var(--font-display)", fontSize: 16 }}>HojoNavi</div>
+              <div className="sb-mark">泉</div>
+              <div style={{ fontWeight: 600, fontFamily: "var(--font-display)", fontSize: 16 }}>補助金の泉</div>
             </div>
           )}
           <h2 className="display" style={{ fontSize: 28, fontWeight: 600, margin: "0 0 8px", letterSpacing: "-0.015em" }}>
